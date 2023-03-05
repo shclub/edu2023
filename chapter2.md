@@ -52,7 +52,7 @@ Nexus 설정 값
 
 로그인을 하기 위한 초기 admin 패스워드를 찾아서 입력하라는 메시지가 나온다.
 
-<img src="./assets/nexus1.png" style="width: 80%; height: auto;"/> 
+<img src="./assets/nexus2.png" style="width: 80%; height: auto;"/> 
 
 아래 명령어를 사용하여 비밀번호를 복사를 하고 admin/비밀번호를 입력하여 로그인한다.  
 
@@ -66,8 +66,6 @@ abe090cf-68c4-43ba-a6ff-b58d3c82fec4
 <br/>
 
 admin 비밀번호를 입력한다.  
-
-<img src="./assets/nexus2.png" style="width: 50%; height: auto;"/> 
 
 <br/>
 
