@@ -1,32 +1,75 @@
 # 본 과정에 대해  ( Cloud Native 입문 과정 )
  
-본 교육 과정은 Cloud Native 입문 과정으로 이론 및 실습을 수행한다. ( 2일 오프라인 교육 )
+본 교육 과정은 Cloud Native 입문 과정으로 이론 및 실습을 수행한다. ( 16 시간 오프라인 교육 )
  
 
 문의 :  이석환 ( seokhwan.lee@kt.com / shclub@gmail.com )
 
 <br/>
 
+
+0. Chapter 0 : 프로그램 설치  ( [가이드 문서보기](./install.md) )  
+
+     - Cloud Shell ( Terminal / Bastion ) 용 VM 서버 접속  
+     - Docker / Docker Compose 설치
+     - Openshift Console 설치 ( kubectl 같이 설치 됨 )
+     - Git 설치
+     - Helm 설치
+     - Github 계정 생성
+     - Docker Hub 계정 생성 
+
+     <br/>
+
+
 1. Chapter 1 : 2시간  ( [가이드 문서보기](./chapter1.md) )  
 
      - Docker 이해 및 활용 
-     - GitHub , Docker 계정 생성 , Jenkins Pipeline 생성하여 CI 실습 
+     - GitHub , Docker 계정 생성 , Jenkins Pipeline 생성하여
+       CI 실습 
 
      <br/>
 
-2. Chapter 2 : 2시간  ( [가이드 문서보기](./chapter2.md) )  
+2. Chapter 2 : 1시간  ( [가이드 문서보기](./chapter2.md) )  
+
+     - Private Docker Registry 설명 및 구축 하기 ( /w Nexus ) 
+     - Remote 로 연결하기  ( Inscure Registry 설정 )
+          
+     <br/>
+     
+     - 과제  : Chapter2의 Jenkins Pipeline 을 Private Docker registry로 변경해 보기 
+
+     <br/>
+
+3. Chapter 3 : 1시간  ( [가이드 문서보기](./chapter3.md) )  
 
      - Github Action , workflow 사용 ( GoodBye Jenkins ) 
-     - Docker Compose 설치 및 활용 ( DB 연동 )  
+     - Docker Compose 설명 및 설치 , 활용 ( DB 연동 )  
 
      <br/>
 
 ---
-1일차 과제
+## 1일차 과제
+
+<br/>
+
+Harbor 설치  
+- Nexus 컨테이너와 Docker Compose로 기동된 컨테이너를 종료 한다. 
+- Private Docker Registry 를 Harbor를 사용하여 구성 한다.
+- Harbor 포트는 40002를 사용하며 https 연결하기 위한 인증서 설정을 한다.
+- Harbor 에 edu 프로젝트를 생성하고 신규 계정을 생성하여 member에 추가한다.
+- nginx 이미지를 본인의 Private Docker Registry에 Push 한다.
+- Harbor에서 확인한다.
+
+<br/>
+
+샘플 : https://211.252.85.148:40002/  
+계정 : edu/New234!
+
+<br/>
 
 ---
 
-3. Chapter 3 : 4시간   ( [가이드 문서보기](./chapter3.md) )  
+3. Chapter 3 : 4시간   ( [가이드 문서보기](./chapter4.md) )  
 
      - k8s 이해 및 활용
      - k8s hands-on Basic [ Hands-On 문서보기 ](./k8s_basic_hands_on.md)  
@@ -43,7 +86,6 @@
 
 ---
 2일차 과제
-
 ---
 
 
@@ -55,7 +97,7 @@
 
     <br/>
 
-5. Chapter 5 : 4시간   ( [가이드 문서보기](./chapter4.md) ) 
+5. Chapter 5 : 4시간   ( [가이드 문서보기](./chapter5.md) ) 
 
      - GitOps 설명
      - kustomize 설명 및 실습
@@ -74,7 +116,6 @@
 
 ---
 3주차 과제
-
 ---
 
 6. Chapter 5 : 4시간   ( [가이드 문서보기](https://github.com/shclub/edu/blob/master/k8s_middle_hands_on.md) ) 
@@ -92,100 +133,4 @@
 
 ---
 4주차 과제
-
 ---
-<br/>
-
-## Jenkins 접속 정보
- 
-<br/>
-
-웹브라우저에서 접속 가능.    
-
-http://211.252.85.148:9000/   
-
-
-- 계정 : <edu + 순번>  ( 예: edu1 )
-- 비밀번호 : 사전 공지  
-
-
-<br/>
-
----
-
-## OKD 접속 정보
- 
-<br/>
-
-```bash
-oc login https://api.211-34-231-81.nip.io:6443 -u shclub-admin -p <비밀번호> --insecure-skip-tls-verify
-```  
-
-- 계정 : <edu + 순번 + `-admin`>  ( 예: edu1-admin )
-- 비밀번호 : 사전 공지    
-
-
-OKD WEB Console : https://console-openshift-console.apps.211-34-231-82.nip.io/  
-
-
-<br/>
-
-
----
-## ArgoCD 접속 정보
- 
-<br/>
-
-
-OKD : https://argocd-argocd.apps.211-34-231-82.nip.io/applications    
-
-
-K3S : https://211.252.87.34:30000/  ( 임시 )
-
-- 계정 : edu + 순번  ( 예: edu1 )
-- 비밀번호 : 사전 공지  
-
-<br/>
-
----
-
-## KT Cloud KTP 상품
- 
-<br/>
-
-```bash
-https://cloud.kt.com/portal/user-guide/Container-container-guide
-```  
-
-<br/>
-
----
-
-## NGINX YAML Sample
- 
-<br/>
-
-nginx.yaml
-```bash
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx-deployment
-  labels:
-    app: nginx
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:1.14.2
-        ports:
-        - containerPort: 80
-```
