@@ -6,7 +6,7 @@ Private Docker Registry 를 구축하여 Docker image 를 관리한다.
 
 1. Nexus 설치 및 설정
 
-2. Remote 로 연결하기  ( Inscure Registry 설정 )
+2. Remote 로 연결하기  ( Insecure Registry 설정 )
 
 3. 과제 ( private registry 를 사용하여 Jenkins Pipeline 구성 )
 
@@ -28,7 +28,7 @@ Nexus는 공통 라이브러리를 저장하거나 폐쇄망에서 외부 라이
 
 ```bash
 root@newedu:/# docker volume create nexus
-root@newedu:/# docker run -d --name nexus -v nexus:/root/nexus-data -p 40001:8081 -p 40010:40010  sonatype/nexus3:3.37.3
+root@newedu:/# docker run -d --name nexus -v nexus:/nexus-data -p 40001:8081 -p 40010:40010  sonatype/nexus3:3.37.3
 ```  
 <br/>
 

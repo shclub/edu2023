@@ -32,7 +32,7 @@
 2. Chapter 2 : 1시간  ( [가이드 문서보기](./chapter2.md) )  
 
      - Private Docker Registry 설명 및 구축 하기 ( /w Nexus ) 
-     - Remote 로 연결하기  ( Inscure Registry 설정 )
+     - Remote 로 연결하기  ( Insecure Registry 설정 )
           
      <br/>
      
