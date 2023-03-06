@@ -36,7 +36,7 @@
           
      <br/>
      
-     - 과제  : Chapter2의 Jenkins Pipeline 을 Private Docker registry로 변경해 보기 
+     - 과제  : Chapter1의 Jenkins Pipeline 을 Private Docker registry로 변경해 보기 
 
      <br/>
 

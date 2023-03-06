@@ -193,11 +193,11 @@ nx-admin을 granted로 설정한다.
 <br/>
 
 
-##  Remote 로 연결하기  ( Inscure Registry 설정 )
+##  Remote 로 연결하기  ( Insecure Registry 설정 )
 
 <br/>
 
-### Inscure Registry 설정
+### Insecure Registry 설정
 
 <br/>
 
@@ -229,6 +229,22 @@ root@newedu:~# vi /etc/docker/daemon.json
 systemctl restart docker
 ```  
 <br/>
+
+docker를 재기동 하면 nexus를 다시 실행 시켜야 한다.    
+
+먼저 기존의 컨테이너 이름인 nexus를 삭제하고 재기동한다.  
+
+<br/>
+
+
+```bash
+root@newedu:/# docker rm nexus
+root@newedu:/# docker run -d --name nexus -v nexus:/nexus-data -p 40001:8081 -p 40010:40010  sonatype/nexus3:3.37.3
+```  
+
+<br/>
+
+참고로,  
 
 윈도우나 맥 사용자는 docker desktop 에서 preferences 메뉴를 선택하여 docker engine을 수정한다.  
 
