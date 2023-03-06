@@ -66,4 +66,4 @@ Harbor 설치 ( https가 힘든 사람은 http 로 구성 )
 <br/>
 
 샘플 : https://211.252.85.148:40002/  
-계정 : admin/New234!
+계정 : admin/New1234!
