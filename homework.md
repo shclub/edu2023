@@ -34,7 +34,7 @@
 
  docker compose로 구성한 mysql container에 접속하여 로그인 한 후 wordpress db에 customer 테이블을 생성해 본다.  
  - docker-compose.yml 화일 참고
- - table이름은 customer 이고 필드는 customer_id , customer_name 만 필요  
+ - table 이름은 customer 이고 필드는 customer_id , customer_name 만 필요  
 
 <br/>
 
@@ -67,3 +67,7 @@ Harbor 설치 ( https가 힘든 사람은 http 로 구성 )
 
 샘플 : https://211.252.85.148:40002/  
 계정 : admin/New1234!
+
+<br/> 
+
+Harbor 설치 homework : 

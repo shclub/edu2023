@@ -20,6 +20,9 @@
 
      <br/>
 
+     - 환경 정보  ( [가이드 문서보기](./environment.md) )  
+
+    <br/>
 
 1. Chapter 1 : 2시간  ( [가이드 문서보기](./chapter1.md) )  
 
@@ -59,6 +62,7 @@ Harbor 설치
 - Harbor 에 edu 프로젝트를 생성하고 신규 계정을 생성하여 member에 추가한다.
 - nginx 이미지를 본인의 Private Docker Registry에 Push 한다.
 - Harbor에서 확인한다.
+- clair 를 사용하여 도커 취약점을 분석한다.  
 
 <br/>
 
