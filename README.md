@@ -4,6 +4,17 @@
  
 
 문의 :  이석환 ( seokhwan.lee@kt.com / shclub@gmail.com )
+<br/>
+
+2022년 1등 학습체 자료  : https://github.com/shclub/edu
+- 각 솔루션 설치 가이드 (k3s , jenkins , ArgoCD 등 ) 
+- Cloud Native 교육
+- SpringBoot 초급  
+
+<br/>
+
+2022년 Cloud Native 전사 교육 자료  : https://github.com/shclub/newedu
+
 
 <br/>
 
