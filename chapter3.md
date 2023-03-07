@@ -12,17 +12,18 @@ GitHub Action을 사용한 CI 와 Docker Compose 에 대해서도 실습을 한�
 
 ##  Github Action 과 workflow 사용 ( GoodBye Jenkins )
 
-<br/>
-
-### GitHub Package
 
 <br/>
 
 github 에서도 Packages 라는 이름으로 도커 레지스트리를 기능을 지원한다.  
 현재 private은 500 메가 까지는 제공을 하고 있다.  
 
+<br/>
+
 docker 이미지 이름은 앞에 ghcr.io가 붙는다.  
 github의 본인 계정으로 이동하면 packages tab을 볼수 있다.  
+
+<br/>
 
 <img src="./assets/github_package.png" style="width: 80%; height: auto;"/>  
 
@@ -47,17 +48,27 @@ https://github.com/shclub/edu1 를 본인의 github에 fork 한다.
 
 <br/>
 
-템플릿 목록이 나오고 먼저 Github package 에  push 하기 위해서 Publish Docker Container Template을 선택한 후 configure 를 클릭한다.  
+New Workflow 버튼을 클릭하면,  
+
+<br/>
+
+템플릿 목록이 나오고 Publish Docker Container 로 검색을 하면 여러 개의  
+템플릿이 나오는데 그중 Publish Docker Container Template 을  선택한 후 configure 를 클릭한다.  
 - IOS 나 Android의 경우는 search 메뉴에서 검색한다.    
 
 <br/>
 
-<img src="./assets/github_action_template.png" style="width: 80%; height: auto;"/>  
+<img src="./assets/github_action2.png" style="width: 80%; height: auto;"/>  
 
 <br/>
 
-docker-publish.yml 화일이 아래 처럼 생기고 schedule 부분의 2개 라인만
+해당 프로젝트에 Github Action을 사용 할때는 아래와 같이 하면 된다.    
+- docker-publish.yml 화일이 아래 처럼 생기고 schedule 부분의 2개 라인만
 주석 처리하고 Start commit을 클릭한다.  
+
+<br/>
+
+* 그러나 여기에서는 강사가 사전에 만들어 놓은 샘플을 활용한다.
 
 <br/>
 
@@ -65,33 +76,62 @@ docker-publish.yml 화일이 아래 처럼 생기고 schedule 부분의 2개 라
 
 <br/>
 
-./github/workflows 폴더가 생성이 되고 docker-publish.yml 화일이 생성 된것을 확인 할수 있다.  
+./github/workflows 폴더로 이동하여 docker-publish.yml  화일이 있는지 확인해 본다.  
+
+<br/>
 
 <img src="./assets/github_action4.png" style="width: 100%; height: auto;"/>  
 
 <br/>
 
-다시 Actions Tab을 클릭한다.    
+다시 Actions Tab을 클릭한다.
 
-Docker 라는 workflow 가 생성이되고 오른편에 pipeline 이 실행 되고 있는것을  확인할 수있다.  
+<br/>
+
+사전에 만들어진 Workflow 중에 Publish Docker GitHub Image 를 선택하면
+오른쪽에 Run workflow 버튼이 나타난다.   
 
 <br/>
 
 <img src="./assets/github_action5.png" style="width: 100%; height: auto;"/>  
 
+<br/>
+
+
+workflow 버튼을 클릭하면 Docker Image TAG 을 넣을 수가 있는데 default는 master 이다.    
+
+이 값은 강사가 값을 Input 받을수 있도록 만들어 놓은 것이고 docker image의  TAG 값으로 구성된다.    
+
+Workflow를 Run 한다. 
+
+<br/>
+
+<img src="./assets/github_action5-1.png" style="width: 100%; height: auto;"/>  
+
+<br/>
+
+Workflow를 Run 하면 몇 초 후에 아래와 같이 workflow 가 실행이 되면 해당 workflow를 클릭한다.  
+
+<br/>
+
+<img src="./assets/github_action5-2.png" style="width: 100%; height: auto;"/>  
+
+<br/>
+
 정상적으로 수행이되면 파란색으로 아이콘이 변경이되고 에러가 발생하면 붉은색으로 나온다.  
+
+왼쪽의 Job메뉴의 build를 클릭하면 오른편에 세부 파이프라인 로그를 볼 수 있다.  
 
 <br/>
 
 <img src="./assets/github_action6.png" style="width: 100%; height: auto;"/>  
 
-해당 파이프라인 클릭 ( create  Docker-publish.yml ) 하면 빌드 화면으로 넘어가고 Build를 클릭하면 오른편에 파이프라인 세부 로그를 볼 수있다.  
 
 <br/>
 
-<img src="./assets/github_action7.png" style="width: 100%; height: auto;"/>  
+생성된 빌드 이미지를 보기 위해서는 왼쪽 상단에 edu1 repository 이름을 클릭한다.    
 
-생성된 빌드 이미지를 보기 위해서는 본인 계정을 클릭한다.  
+오른쪽 하단의 Packages 에 edu1 이라는 도커 이미지가 생성된 걸 볼수 있다.  
 
 <br/>
 
@@ -99,19 +139,13 @@ Docker 라는 workflow 가 생성이되고 오른편에 pipeline 이 실행 되�
 
 <br/>
 
-repository에서도 오른편에서 package 를 통해 확인 할 수도 있다.  
-
-<img src="./assets/github_action8-1.png" style="width: 100%; height: auto;"/>  
-
-<br/> 
-
-Packages를 클릭하면 신규로 생성된 도커 이미지를 확인 할 수 있다.  
+Packages 를 클릭하면 신규로 생성된 도커 이미지를 확인 할 수 있다.  
 
 <img src="./assets/github_action9.png" style="width: 100%; height: auto;"/>  
 
 <br/>
 
-해당 도커 이미지를 클릭하면 docker pull을 위한 도커 이미지를 명령어를 확인 할 수 있고 오른편에는 package를 설정할수 있다.  
+해당 도커 이미지를 클릭하면 docker pull을 위한 도커 이미지를 명령어를 확인 할 수 있고 오른편에는 package를 설정할수 있다.    
 
 기본 설정은 public 이다.  
 
@@ -152,22 +186,24 @@ Actions Tab으로 이동하여 New workflow를 클릭한다.
 
 <img src="./assets/github_action11.png" style="width: 100%; height: auto;"/>  
 
-아래의 내용을 복사한다.    
+아래의 내용을 복사한다. edu1를 fork 했으면 복사 불필요.  
 
 <br/>
 
 ```bash
-name: Publish Docker image
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
 
-on:
-#  release:
-#    types: [published]
-  push:
-    branches: [ master ]
-    # Publish semver tags as releases.
-#    tags: [ 'v*.*.*' ]
-  pull_request:
-    branches: [ master ]
+name: Publish Docker Hub image
+
+on:      
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "Docker TAG"
+        required: true
+        default: "master"
     
 jobs:
   push_to_registry:
@@ -187,78 +223,44 @@ jobs:
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images:  <본인 도커 계정>/edu1
+          images: ${{ github.repository }}
+          tags: ${{ github.event.inputs.name }}
       
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
           push: true
-          tags:  <본인 도커 계정>/edu1
-          #${{ steps.meta.outputs.tags }}
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 ```  
 
 <br/>
 
-아래와 같이 생성이 되면 화일명을 docker-hub-publish.yml로 변경을 하고 image 이름을 원하는 이름으로 변경한다.  
-본인 docker hub id 를 사용한다.  
+위의 예제에서 docker hub의 계정와 github 계정의 이름이 다르면 에러가 발생하고 아래를 참고하여 소스를 수정한다.  
+
+`images: ${{ github.repository }}` 이 부분을
+`images: docker hub id\이미지이름 ` 으로 변경한다.
+- 예 ) images: shclub2\edu1  
 
 <br/>
 
-```bash
-#before
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-        with:
-          images:  <본인 도커 계정>/edu1
-      
-      - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-        with:
-          context: .
-          push: true
-          tags:  <본인 도커 계정>/edu1
-          labels: ${{ steps.meta.outputs.labels }}
-#after
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-        with:
-          images: <본인 도커 계정>/edu1 <-- 수정
-      
-      - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-        with:
-          context: .
-          push: true
-          tags: <본인 도커 계정>/edu1   <-- 수정  
-          labels: ${{ steps.meta.outputs.labels }}
-```  
-<br/>
 
-<img src="./assets/github_action12.png" style="width: 100%; height: auto;"/>  
+Actions Tab 으로 이동하면 여러개의 workflow 가 보이고 Publish Docker Hub Image를 선택한다.  
+
+오른쪽에 Run workflow 가 보이는 것을 확인 할 수 있다.  
 
 <br/>
-
-start commit 버튼을 클릭하면 화일이 신규로 생긴것을 확인할 수가 있고  빌드가 수행이 된다.  
 
 <img src="./assets/github_action13.png" style="width: 100%; height: auto;"/>  
 
 <br/>
 
-Actions Tab 으로 이동하면 Publish Docker image 가 생성이 되고 빌드 파이프 라인이 성공 1개 에러 1개가 발생 한 것을 확인 할 수 있다.  
-
-<img src="./assets/github_action14.png" style="width: 100%; height: auto;"/>  
+Run workflow를 실행한다.  
 
 <br/>
 
-에러를 클릭하면 세부 파이프라인 창으로 이동을 하고 오른편 화면에 에러가 난 곳을 확장 하여 에러메시지를 확인한다.  
-
-<br/>
-
-에러 메시지는  Github Repository (edu1)에 도커 허브 credential을 만들지 않아서 발생한 에러이다.
+만약 아래와 같은 에러 메시지가 발생하면  도커 허브 credential을 만들지 않아서 발생한 에러이다.
 
 <br/>
 
@@ -288,6 +290,8 @@ with:
 
 아래와 같이 secret을 생성한다.  
 
+<br/>
+
 <img src="./assets/github_action_docker3.png" style="width: 100%; height: auto;"/>   
 
 <br/>
@@ -298,83 +302,16 @@ with:
 
 <br/>
 
-Actions Tab 으로 이동하여 Publish Docker image 를 선택하고 에러난 화면을 클릭하여 세부 파이프라인 창으로 이동한다.  
-
-<img src="./assets/github_action_docker5.png" style="width: 100%; height: auto;"/>  
+Actions Tab 으로 이동하여 Publish Docker Hub image 를 선택하고 다시 workflow를 Run 한다.  
 
 <br/>
 
-오른쪽 상단에 Re-run failed job을 선택한다.  
-
-<img src="./assets/github_action_docker6.png" style="width: 100%; height: auto;"/>  
-
-<br/>
-
-Re-run jobs를 클릭한다.  
-
-<img src="./assets/github_action_docker7.png" style="width: 100%; height: auto;"/>  
-
-<br/>
-
-다시 파이프라인을 재실행을 한다.  
-
-<img src="./assets/github_action_docker8.png" style="width: 100%; height: auto;"/>  
-
-<br/>
-
-성공으로 빌드 된것을 확인 할 수 있다.  
-
-<br/>
-
-<img src="./assets/github_action_docker9.png" style="width: 100%; height: auto;"/>  
-
-<br/>
-
-도커 허브로 이동하여 생성된 이미지를 확인한다.  
+성공으로 빌드 가 되면 도커 허브로 이동하여 생성된 이미지를 확인한다.  
 
 <br/>
 
 <img src="./assets/github_action_docker10.png" style="width: 100%; height: auto;"/>  
 
-<br/>
-
-### 수동으로 Actions workflow 실행 
-
-<br/>
-
-workflow는 schedule 또는 event trigger를 통해서 동작을 하지만 수동으로 원할때만 빌드 할수 있도록 구성을 할 수 있다. 
-
-<br/>
-
-
-docker-hub-publish.yml 화일에서 on 아래에 아래와 같이 추가해 준다.  
-기존의 값은 주석 처리한다.  ( jobs 아래 내용은 수정하지 않는다 )  
-
-```bash
-on:      
-  workflow_dispatch:
-    inputs:
-      name:
-        description: "TAG"
-        required: true
-        default: "master"
-#  schedule:
-#    - cron: '25 2 * * *'
-#  push:
-#    branches: [ master ]
-#    # Publish semver tags as releases.
-#    tags: [ 'v*.*.*' ]
-#  pull_request:
-#    branches: [ master ]
-```  
-
-Commit을 하고 Actions Tab으로 이동하면 아래와 같이 Run workflow 버튼이 생성된 것을 확인 할 수 있다.  
-
-<br/>
-
-버튼을 클릭하면 설정한 Input 값이 나오고 Run을 하면 실행이 된다.  
-
-<img src="./assets/github_action_manual.png" style="width: 80%; height: auto;"/>  
 
 <br/>
 
