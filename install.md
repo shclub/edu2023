@@ -21,6 +21,8 @@
 
 8. DockerHub 계정 생성
 
+9. OKD 에 Insecure Registry 설정
+
 
 <br/>
 
@@ -420,3 +422,77 @@ docker push (본인id)/hello-world
 setting 으로 이동하여 Make public 클릭후 repository 이름을 입력후 Make Public 클릭  
 
 <img src="./assets/docker_hub_make_public.png" style="width: 60%; height: auto;"/>
+
+
+<br/>
+
+
+## OKD 에 Insecure Registry 설정
+
+<br/>
+
+OKD 의 각 worker node에 접속하여 /etc/containers/registries.conf 에  private docker registry를 설정한다.  
+
+<br/>
+
+```bash
+[root@edu ~]# vi /etc/containers/registries.conf
+```  
+
+<br/>
+
+아래와 같이 location에 설정을 하고 insecure 는 true로 설정한다.  
+
+<br/>
+
+
+```bash
+[[registry]]
+  prefix = ""
+  location = "211.252.85.148:40002"
+  insecure = true
+```
+
+<br/>
+
+crio를 재기동 한다.  ( OKD 4.7 은 Docker runtime 대신 CRIO 사용 )
+
+```bash
+[root@edu ~]# systemctl restart crio
+```  
+
+<br/>
+
+상태를 확인한다.  
+
+<br/>
+
+```bash
+[root@edu ~]# systemctl status crio
+● crio.service - Container Runtime Interface for OCI (CRI-O)
+     Loaded: loaded (/usr/lib/systemd/system/crio.service; disabled; vendor preset: disabled)
+    Drop-In: /etc/systemd/system/crio.service.d
+             └─10-mco-default-madv.conf, 10-mco-profile-unix-socket.conf, 20-nodenet.conf
+     Active: active (running) since Tue 2023-03-07 09:24:18 UTC; 7s ago
+       Docs: https://github.com/cri-o/cri-o
+   Main PID: 2067535 (crio)
+      Tasks: 17
+     Memory: 55.5M
+        CPU: 3.294s
+     CGroup: /system.slice/crio.service
+             └─2067535 /usr/bin/crio
+
+Mar 07 09:24:18 edu.worker05 crio[2067535]: time="2023-03-07 09:24:18.978900380Z" level=info msg="Got pod network &{Name:dns-def>
+Mar 07 09:24:18 edu.worker05 crio[2067535]: time="2023-03-07 09:24:18.979083576Z" level=info msg="About to check CNI network mul>
+Mar 07 09:24:18 edu.worker05 crio[2067535]: time="2023-03-07 09:24:18.979400484Z" level=info msg="Got pod network &{Name:network>
+Mar 07 09:24:18 edu.worker05 crio[2067535]: time="2023-03-07 09:24:18.979582508Z" level=info msg="About to check CNI network mul>
+Mar 07 09:24:18 edu.worker05 crio[2067535]: time="2023-03-07 09:24:18.979896648Z" level=info msg="Got pod network &{Name:network>
+Mar 07 09:24:18 edu.worker05 crio[2067535]: time="2023-03-07 09:24:18.980059990Z" level=info msg="About to check CNI network mul>
+Mar 07 09:24:18 edu.worker05 crio[2067535]: time="2023-03-07 09:24:18.980374941Z" level=info msg="Got pod network &{Name:ingress>
+Mar 07 09:24:18 edu.worker05 crio[2067535]: time="2023-03-07 09:24:18.980535545Z" level=info msg="About to check CNI network mul>
+Mar 07 09:24:18 edu.worker05 crio[2067535]: time="2023-03-07 09:24:18.981590475Z" level=info msg="Serving metrics on :9537"
+Mar 07 09:24:18 edu.worker05 systemd[1]: Started Container Runtime Interface for OCI (CRI-O).
+```  
+
+
+

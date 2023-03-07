@@ -61,24 +61,6 @@
 
      <br/>
 
----
-## 1주차 과제
-
-<br/>
-
-Harbor 설치  
-- Nexus 컨테이너와 Docker Compose로 기동된 컨테이너를 종료 한다. 
-- Private Docker Registry 를 Harbor를 사용하여 구성 한다.
-- Harbor 포트는 40002를 사용하며 https 연결하기 위한 인증서 설정을 한다.
-- Harbor 에 edu 프로젝트를 생성하고 신규 계정을 생성하여 member에 추가한다.
-- nginx 이미지를 본인의 Private Docker Registry에 Push 한다.
-- Harbor에서 확인한다.
-- clair 를 사용하여 도커 취약점을 분석한다.  
-
-<br/>
-
-샘플 : https://211.252.85.148:40002/  
-계정 : edu/New234!
 
 <br/>
 
