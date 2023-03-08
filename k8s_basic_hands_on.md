@@ -8,7 +8,7 @@ kubernetes에서 kubectl를 사용하여 cli 실습을 한다.
 
 3. Kubectl 활용
 
-4. kubernetes 리소스 ( Pod , Service , Deployment 생성 및 삭제)
+4. kubernetes 리소스 ( Pod , Service , Deployment 생성 및 삭제 )
 
 5. 배포 ( Rolling Update / Rollback )
 
