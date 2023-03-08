@@ -912,6 +912,11 @@ Role 과 RoleBinidng 을 만드는 방법은 크게 두가지가 있다.
 
 <br/>
 
+참고
+- 출처 : https://velog.io/@ehdrms2034/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4-RBAC-%EA%B8%B0%EB%B0%98-ServiceAccount
+
+<br/>
+
 먼저 아래 소스를 사용하여 role을 생성합니다.    
 이 role은 pod 에만 허용된 권한이다. 서비스를 조회하거나 할수는 없다.  
 
