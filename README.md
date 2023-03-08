@@ -66,7 +66,7 @@
 
 ---
 
-3. Chapter 3 : 4시간   ( [가이드 문서보기](./chapter4.md) )  
+3. Chapter 4 : 4시간   ( [가이드 문서보기](./chapter4.md) )  
 
      - k8s 이해 및 활용
      - k8s hands-on Basic [ Hands-On 문서보기 ](./k8s_basic_hands_on.md)  
@@ -86,7 +86,7 @@
 ---
 
 
-4. Chapter 4 : 10분   ( [가이드 문서보기]( https://github.com/shclub/edu/blob/master/chapter9.md ) ) 
+4. Chapter 5 : 10분   ( [가이드 문서보기]( https://github.com/shclub/edu/blob/master/chapter9.md ) ) 
 
      - OKD 4.7 설치 ( kt cloud FlyingCube 2.0 )  
           - NFS 설정 및 접속  
@@ -94,7 +94,7 @@
 
     <br/>
 
-5. Chapter 5 : 4시간   ( [가이드 문서보기](./chapter5.md) ) 
+5. Chapter 6 : 4시간   ( [가이드 문서보기](./chapter5.md) ) 
 
      - GitOps 설명
      - kustomize 설명 및 실습
@@ -115,7 +115,7 @@
 3주차 과제
 ---
 
-6. Chapter 5 : 4시간   ( [가이드 문서보기](https://github.com/shclub/edu/blob/master/k8s_middle_hands_on.md) ) 
+6. Chapter 7 : 4시간   ( [가이드 문서보기](https://github.com/shclub/edu/blob/master/k8s_middle_hands_on.md) ) 
 
      - Storage Volume  ( PV/PVC , DB 설치 + NFS )
           - MariaDB NFS 에 설치 ( /w Helm Chart ) 
