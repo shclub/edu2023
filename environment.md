@@ -104,6 +104,7 @@ Kt cloud에 k8s 1.21 버전 cluster 구성하였으니 아래 환경에서 CKA �
 
 - Master node1 로 접속 : ssh ubuntu@211.34.231.90  
 - Worker node1 로 접속 : ssh ubuntu@211.34.231.91  
+- Node Port IP : 211.34.231.91
 - API 도메인 : 211-34-231-87.nip.io  
 - Ingress 도메인 : 211-34-231-88.nip.io    
 
