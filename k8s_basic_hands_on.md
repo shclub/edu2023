@@ -12,7 +12,7 @@ kubernetes에서 kubectl를 사용하여 cli 실습을 한다.
 
 5. 배포 ( Rolling Update / Rollback )
 
-6. Serivce Expose ( Ingress )
+6. Serivce Expose ( Route / Ingress )
 
 7. 참고 사이트 
     - podman 사용 : https://github.com/chhanz/kubernetes-hands-on-lab
@@ -61,6 +61,8 @@ Deployment 와 Service 그리고 Ingress의 관계가 간단하게 정리된 그
 <br/>
 
 ##  Kubeconfig 설정  : kubectl 설치 ( 윈도우 / Mac )
+
+<br/>
 
 ### kubectl 설치 ( https://kubernetes.io/ko/docs/tasks/tools/ )
 

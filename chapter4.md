@@ -713,7 +713,6 @@ spec:
     image: nicolaka/netshoot
     command: ['sh', '-c', 'sleep 6000']
     imagePullPolicy: IfNotPresent
-<br/>
 ```
 
 <br/>
