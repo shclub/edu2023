@@ -7,7 +7,7 @@
     -  컨테이너 Mysql DB 활용
     -  Portainer 설치
     -  Harbor 구성해 보기 
-2. 2주차 : CKA 문제 풀어 보기
+2. 2주차 : CKA 문제 풀어 보기 [ 문제 ](./cka.md) 
 3. 3주차 : kubernetes에 Jenkins Master/Slave 구성하기
 
 <br/>
@@ -69,4 +69,28 @@ Harbor 설치 ( https가 힘든 사람은 http 로 구성 )
 계정 : admin/New1234!
 
 <br/> 
+
+
+##  2주차
+
+<br/>
+
+### CKA 예상 문제 중에 풀어볼 문제.
+
+
+<br/>
+
+- 2번
+- 3번
+- 4번
+- 5번
+- 7번
+- 9번
+- 10번
+- 11번
+- 12번 
+- 14번
+
+
+
 
