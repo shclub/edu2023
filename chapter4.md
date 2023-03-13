@@ -644,7 +644,8 @@ namespace:  7 bytes
 
 <br/>
 
-Token Controller 에 의해 생성된 Secret 에는 아래와 같은 3가지 데이터가 base64 로 인코딩되어 들어있다.  
+Token Controller 에 의해 생성된 Secret 에는 아래와 같은 3가지 데이터가 base64 로 인코딩되어 들어있다.    
+
 
 - ca.crt - API 서버와 통신 시, SSL 인증을 위한 증명서
 - token - 서비스어카운트 이름, Secret 이름 등의 정보에 서명한 JWT.   
