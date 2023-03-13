@@ -42,7 +42,7 @@
 > 결과값  
 
 ```bash
-root@newedu:~# kubectl exec -it eshop-main   -- printenv
+ubuntu@edu-k8s:~/$ kubectl exec -it eshop-main   -- printenv
 DB=mysql
 ```  
 
@@ -59,7 +59,7 @@ Master Node의 API를 호출 하지 않아 Scheduler 가 생성하지 않는 POD
 k8s에는 /var/lib/kubelet/config.yaml 에서 static POD yaml 화일을 위치를 볼수 있고 일반적으로 /etc/kubernetes/manifests 폴더에 있다.    
 
 ```bash
-root@newedu:~# cat /var/lib/kubelet/config.yaml 
+ubuntu@edu-k8s:~/$ cat /var/lib/kubelet/config.yaml 
 ...
 staticPodPath: /etc/kubernetes/manifests
 ...
@@ -74,8 +74,8 @@ Master Node 의 POD 들도 Static POD 이고 kubelet 에 의해서 기동된다.
 > Question : Configure kubelet hosting to `start a pod on > the node`  
 
 > TASK :  
->  - Node : node1 ( okd 이면  : edu.worker05 )
->  - Pod Name : web
+>  - Node : edu-k8s.worker01 ( okd 이면  : edu.worker05 )
+>  - Pod Name :  <edu+순번>-web ( 예, edu1-web ) 
 >  - image : ghcr.io/shclub/nginx
 
 <br/><br/>
@@ -84,7 +84,7 @@ Master Node 의 POD 들도 Static POD 이고 kubelet 에 의해서 기동된다.
 > 결과값  
 
  ```bash
- root@newedu:~# kubectl get po -n default
+ ubuntu@edu-k8s:~/$ kubectl get po -n default
  default                                            web-edu.node01                                                  1/1     Running                0          2m54s
 ```  
 
@@ -111,10 +111,10 @@ Master Node 의 POD 들도 Static POD 이고 kubelet 에 의해서 기동된다.
 > 결과값  
 
 ```bash
-root@newedu:~# kubectl get po
+ubuntu@edu-k8s:~/$ kubectl get po
 NAME                                READY   STATUS    RESTARTS   AGE
 multi-con                           3/3     Running   0          31s
-root@newedu:~# kubectl describe po multi-con
+ubuntu@edu-k8s:~/$ kubectl describe po multi-con
 Name:         multi-con
 Namespace:    edu30
 Priority:     0
@@ -178,7 +178,10 @@ Containers:
 일단 기동 중인  eshop-cart-app 라는 pod에서 yaml 화일을 받아 옵니다.  
 ( 우리는 현재 기동한 POD가 없기 때문에 아래 yaml를 사용한다. )  
 
-- kubectl get po eshop-cart-app -o yaml > eshop.yaml  
+<br/>
+
+- kubectl get po eshop-cart-app -o yaml > eshop.yaml    
+  ( default namespace에 eshop-cart-app pod 있음. )
 
 <br/>
 
@@ -209,7 +212,7 @@ spec:
 > 결과값  
 
 ```bash
-root@newedu:~# kubectl get po 
+ubuntu@edu-k8s:~/$ kubectl get po 
 NAME                                READY   STATUS    RESTARTS   AGE
 eshop-cart-app                      2/2     Running   0          11s
 ```  
@@ -219,7 +222,7 @@ eshop-cart-app                      2/2     Running   0          11s
 sidecar 컨테이너에서  로그 정보가 나와야 한다.  
 
 ```bash
-root@newedu:~# kubectl logs eshop-cart-app -c sidecar
+ubuntu@edu-k8s:~/$ kubectl logs eshop-cart-app -c sidecar
 1: price: 9448
 2: price: 5839
 3: price: 7135
@@ -254,12 +257,12 @@ root@newedu:~# kubectl logs eshop-cart-app -c sidecar
 <br/><br/>
 
 아래 yaml 화일을 실행하여 deployment 를 생성합니다.  
-- root@newedu:~# kubectl create deployment eshop-order --image=ghcr.io/shclub/nginx --replicas=1 
+- ubuntu@edu-k8s:~/$ kubectl create deployment eshop-order --image=ghcr.io/shclub/nginx --replicas=1 
 
 <br/>
 
 ```bash
-root@newedu:~# kubectl get deployment
+ubuntu@edu-k8s:~/$ kubectl get deployment
 NAME               READY   UP-TO-DATE   AVAILABLE   AGE
 eshop-order        1/1     1            1           7s
 ```  
@@ -267,10 +270,10 @@ eshop-order        1/1     1            1           7s
 > 결과값  : pod가 5개가 생성되었는지 확인한다.
 
 ```bash
-root@newedu:~# kubectl get deployment
+ubuntu@edu-k8s:~/$ kubectl get deployment
 NAME               READY   UP-TO-DATE   AVAILABLE   AGE
 eshop-order        5/5     5            5           46s
-root@newedu:~# kubectl get po
+ubuntu@edu-k8s:~/$ kubectl get po
 NAME                                READY   STATUS    RESTARTS   AGE
 eshop-order-ff866c56b-8k8cq         1/1     Running   0          14s
 eshop-order-ff866c56b-dcfr9         1/1     Running   0          14s
@@ -278,9 +281,6 @@ eshop-order-ff866c56b-fh644         1/1     Running   0          14s
 eshop-order-ff866c56b-ltkg6         1/1     Running   0          58s
 eshop-order-ff866c56b-q9gd2         1/1     Running   0          14s
 ```  
-
-<br/>
-
 
 <br/>
 
@@ -305,12 +305,12 @@ eshop-order-ff866c56b-q9gd2         1/1     Running   0          14s
 <br/><br/>
 
 아래 명령어를 실행하여 deployment 를 생성하고 label를 설정합니다.    
-- root@newedu:~# kubectl create deployment webserver --image=ghcr.io/shclub/nginx:1.14 --replicas=2  
+- ubuntu@edu-k8s:~/$ kubectl create deployment webserver --image=ghcr.io/shclub/nginx:1.14 --replicas=2  
 
 <br/>
 
 ```bash
-root@newedu:~# kubectl get deployment
+ubuntu@edu-k8s:~/$ kubectl get deployment
 NAME               READY   UP-TO-DATE   AVAILABLE   AGE
 eshop-order        1/1     1            1           7s
 ```  
@@ -318,7 +318,7 @@ eshop-order        1/1     1            1           7s
 > 결과값  : webserver 이름으로 deployment 생성 ( Replica : 2 )
 
 ```bash
-root@newedu:~# kubectl get deploy
+ubuntu@edu-k8s:~/$ kubectl get deploy
 NAME               READY   UP-TO-DATE   AVAILABLE   AGE
 webserver          2/2     2            2           5m29s
 ```  
@@ -328,7 +328,7 @@ webserver          2/2     2            2           5m29s
 replicas 3 으로 증가.  
 
 ```bash
-root@newedu:~# kubectl get po
+ubuntu@edu-k8s:~/$ kubectl get po
 NAME                                READY   STATUS    RESTARTS   AGE
 webserver-5586594bbf-kqkfr          1/1     Running   0          3m47s
 webserver-5586594bbf-td2z5          1/1     Running   0          3m47s
@@ -356,7 +356,7 @@ webserver-5586594bbf-vpf5j          1/1     Running   0          7s
 
 
 ```bash
-root@newedu:~# kubectl rollout  history deployment nginx-app
+ubuntu@edu-k8s:~/$ kubectl rollout  history deployment nginx-app
 deployment.apps/nginx-app
 REVISION  CHANGE-CAUSE
 2         <none>
@@ -384,20 +384,29 @@ REVISION  CHANGE-CAUSE
 > 결과값  : node의 label를 확인 하고 pod 생성.  
 
 
+<br/>
+
+아래 명령어로 node 에 label 설정함. ( 강사가 사전 설정하여 불필요 )
+
+```bash
+ubuntu@edu-k8s:~$ kubectl label nodes edu-k8s.worker01 disktype=ssd
+node/edu-k8s.worker01 labeled
+```
+
+<br/>
+
 node별로 disktype label 확인.  
 
 <br/>
 
-k8s cka 환경.    
-
-<br/>
-
 ```bash
-ubuntu@master:~$ kubectl get nodes -L disktype
-NAME     STATUS   ROLES           AGE   VERSION   DISKTYPE
-master   Ready    control-plane   32h   v1.25.3
-node1    Ready    <none>          32h   v1.25.3   ssd
-node2    Ready    <none>          32h   v1.25.3   std
+ubuntu@edu-k8s:~$ kubectl get nodes -L disktype
+NAME                      STATUS   ROLES                  AGE   VERSION    DISKTYPE
+edu-k8s.dmz-infra01       Ready    <none>                 32d   v1.21.13
+edu-k8s.master01          Ready    control-plane,master   32d   v1.21.13
+edu-k8s.private-infra01   Ready    <none>                 32d   v1.21.13
+edu-k8s.worker01          Ready    <none>                 32d   v1.21.13   ssd
+edu-k8s.worker02          Ready    <none>                 32d   v1.21.13
 ``` 
 
 
@@ -406,9 +415,9 @@ node2    Ready    <none>          32h   v1.25.3   std
 pod가 특정 node에서 실행이 됨.  
 
 ```bash
-root@newedu:~# kubectl get po eshop-store -o wide
-NAME          READY   STATUS    RESTARTS   AGE   IP             NODE           NOMINATED NODE   READINESS GATES
-eshop-store   1/1     Running   0          16s   10.131.6.100   edu.worker07   <none>           <none>
+ubuntu@edu-k8s:~/teacher$ kubectl get po -o wide
+NAME             READY   STATUS    RESTARTS   AGE   IP                NODE               NOMINATED NODE   READINESS GATES
+eshop-store      1/1     Running   0          9s    192.168.10.5      edu-k8s.worker01   <none>           <none>
 ```  
 
 <br/>
@@ -423,19 +432,23 @@ cordon : 해당 노드에 pod scheduling 불가.
 <br/>
 
 ```bash
-root@master:~# kubectl get nodes
-NAME     STATUS   ROLES           AGE     VERSION
-master   Ready    control-plane   7d16h   v1.25.3
-node1    Ready    <none>          7d16h   v1.25.3
-node2    Ready    <none>          7d16h   v1.25.3
+ubuntu@edu-k8s:~$ kubectl get nodes
+NAME                      STATUS   ROLES                  AGE   VERSION
+edu-k8s.dmz-infra01       Ready    <none>                 32d   v1.21.13
+edu-k8s.master01          Ready    control-plane,master   32d   v1.21.13
+edu-k8s.private-infra01   Ready    <none>                 32d   v1.21.13
+edu-k8s.worker01          Ready    <none>                 32d   v1.21.13
+edu-k8s.worker02          Ready    <none>                 32d   v1.21.13
 ...
-root@master:~# kubectl cordon node1
-node/node1 cordoned
-root@master:~# kubectl get  nodes
-NAME     STATUS                     ROLES           AGE     VERSION
-master   Ready                      control-plane   7d16h   v1.25.3
-node1    Ready,SchedulingDisabled   <none>          7d16h   v1.25.3
-node2    Ready                      <none>          7d16h   v1.25.3
+ubuntu@edu-k8s:~$ kubectl cordon edu-k8s.worker01
+node/edu-k8s.worker01 cordoned
+ubuntu@edu-k8s:~$ kubectl get nodes
+NAME                      STATUS   ROLES                  AGE   VERSION
+edu-k8s.dmz-infra01       Ready    <none>                 32d   v1.21.13
+edu-k8s.master01          Ready    control-plane,master   32d   v1.21.13
+edu-k8s.private-infra01   Ready    <none>                 32d   v1.21.13
+edu-k8s.worker01          Ready,SchedulingDisabled    <none>                 32d   v1.21.13
+edu-k8s.worker02          Ready    <none>                 32d   v1.21.13
 ```  
 
 <br/>
@@ -449,9 +462,9 @@ drain : 해당 노드의 모든 pod를 다른 node로 보내고 현재 노드에
 <br/>
 
 ```bash
-root@master:~# kubectl drain node1
-node/node1 already cordoned
-error: unable to drain node "node1" due to error:[cannot delete DaemonSet-managed Pods (use --ignore-daemonsets to ignore): calico-system/calico-node-pdvl9, calico-system/csi-node-driver-brjbc, kube-system/kube-proxy-ht2sb, cannot delete Pods declare no controller (use --force to override): devops/eshop-store, devops/web, devops/web2, devops/web4, edu1/eshop-main, edu3/eshop-main, edu4/eshop-main], continuing command...
+ubuntu@edu-k8s:~$ kubectl drain edu-k8s.worker01
+node/edu-k8s.worker01 already cordoned
+error: unable to drain node "edu-k8s.worker01" due to error:[cannot delete DaemonSet-managed Pods (use --ignore-daemonsets to ignore): calico-system/calico-node-pdvl9, calico-system/csi-node-driver-brjbc, kube-system/kube-proxy-ht2sb, cannot delete Pods declare no controller (use --force to override): devops/eshop-store, devops/web, devops/web2, devops/web4, edu1/eshop-main, edu3/eshop-main, edu4/eshop-main], continuing command...
 There are pending nodes to be drained:
  node1
 cannot delete DaemonSet-managed Pods (use --ignore-daemonsets to ignore): calico-system/calico-node-pdvl9, calico-system/csi-node-driver-brjbc, kube-system/kube-proxy-ht2sb
@@ -469,11 +482,11 @@ cannot delete DaemonSet-managed Pods (use --ignore-daemonsets to ignore)
 <br/>
 
 ```bash
-root@master:~# kubectl drain node1 --ignore-daemonsets
-node/node1 already cordoned
-error: unable to drain node "node1" due to error:cannot delete Pods declare no controller (use --force to override): devops/eshop-store, devops/web, devops/web2, devops/web4, edu1/eshop-main, edu3/eshop-main, edu4/eshop-main, continuing command...
+ubuntu@edu-k8s:~$ kubectl drain edu-k8s.worker01 --ignore-daemonsets
+node/edu-k8s.worker01 already cordoned
+error: unable to drain node "edu-k8s.worker01" due to error:cannot delete Pods declare no controller (use --force to override): devops/eshop-store, devops/web, devops/web2, devops/web4, edu1/eshop-main, edu3/eshop-main, edu4/eshop-main, continuing command...
 There are pending nodes to be drained:
- node1
+ edu-k8s.worker01
 cannot delete Pods declare no controller (use --force to override): devops/eshop-store, devops/web, devops/web2, devops/web4, edu1/eshop-main, edu3/eshop-main, edu4/eshop-main
 ```  
 
@@ -484,7 +497,7 @@ cannot delete Pods declare no controller (use --force to override): devops/eshop
 <br/>
 
 ```bash
-root@master:~# kubectl drain node1 --ignore-daemonsets --force
+ubuntu@edu-k8s:~$ kubectl drain edu-k8s.worker01 --ignore-daemonsets --force
 error: unknown flag: --ignore-daemonsets
 See 'kubectl drain --help' for usage
 node/node1 already cordoned
@@ -512,35 +525,35 @@ pod/eshop-main evicted
 pod/eshop-main evicted
 pod/nginx-app-5d98f7444d-8k5p8 evicted
 pod/web2 evicted
-node/node1 drained
+node/edu-k8s.worker01 drained
 ```  
 
 <br/>
 
 node를 조회해 본다.  
 
+<br/>
 
 ```bash
-root@master:~# kubectl get nodes
-NAME     STATUS                     ROLES           AGE     VERSION
-master   Ready                      control-plane   7d16h   v1.25.3
-node1    Ready,SchedulingDisabled   <none>          7d16h   v1.25.3
-node2    Ready                      <none>          7d16h   v1.25.3
+ubuntu@edu-k8s:~$ kubectl get nodes
+NAME                      STATUS   ROLES                  AGE   VERSION
+edu-k8s.dmz-infra01       Ready    <none>                 32d   v1.21.13
+edu-k8s.master01          Ready    control-plane,master   32d   v1.21.13
+edu-k8s.private-infra01   Ready    <none>                 32d   v1.21.13
+edu-k8s.worker01          Ready,SchedulingDisabled    <none>                 32d   v1.21.13
+edu-k8s.worker02          Ready    <none>                 32d   v1.21.13
 ```  
 
 <br/>
 
-pod를 조회해 보면 모든 pod가 node2에서 실행 되는것을 볼수 있다.  
+pod를 조회해 보면 모든 pod가 edu-k8s.worker02 에서 실행 되는것을 볼수 있다.  
 
 ```bash
-root@master:~# kubectl get po -o wide -n devops
+root@master:~# kubectl get po -o wide
 NAME                         READY   STATUS    RESTARTS   AGE     IP               NODE    NOMINATED NODE   READINESS GATES
-eshop-cart-app               2/2     Running   0          20m     192.168.104.16   node2   <none>           <none>
-eshop-main                   1/1     Running   0          6d22h   192.168.104.7    node2   <none>           <none>
-nginx-app-5d98f7444d-8g9tb   1/1     Running   0          5m51s   192.168.104.21   node2   <none>           <none>
-nginx-app-5d98f7444d-nq97z   1/1     Running   0          14m     192.168.104.18   node2   <none>           <none>
-nginx-app-5d98f7444d-sx8wk   1/1     Running   0          5m52s   192.168.104.20   node2   <none>           <none>
-web3                         1/1     Running   0          6d18h   192.168.104.11   node2   <none>           <none>
+eshop-cart-app               2/2     Running   0          20m     192.168.104.16   edu-k8s.worker02   <none>           <none>
+eshop-main                   1/1     Running   0          6d22h   192.168.104.7    edu-k8s.worker02   <none>           <none>
+nginx-app-5d98f7444d-8g9tb   1/1     Running   0          5m51s   192.168.104.21   edu-k8s.worker02   <none>           <none>
 ```  
 
 <br/>
@@ -548,32 +561,37 @@ web3                         1/1     Running   0          6d18h   192.168.104.11
 다시 원복 하기 위해서는 uncordon 명령어를 사용한다. 
 
 ```bash
-root@master:~# kubectl uncordon node1
-node/node1 uncordoned
-root@master:~# kubectl get nodes
-NAME     STATUS   ROLES           AGE     VERSION
-master   Ready    control-plane   7d16h   v1.25.3
-node1    Ready    <none>          7d16h   v1.25.3
-node2    Ready    <none>          7d16h   v1.25.3
+ubuntu@edu-k8s:~/$ kubectl uncordon edu-k8s.worker01
+node/edu-k8s.worker01 uncordoned
+ubuntu@edu-k8s:~/$ kubectl get nodes
+NAME                      STATUS   ROLES                  AGE   VERSION
+edu-k8s.dmz-infra01       Ready    <none>                 32d   v1.21.13
+edu-k8s.master01          Ready    control-plane,master   32d   v1.21.13
+edu-k8s.private-infra01   Ready    <none>                 32d   v1.21.13
+edu-k8s.worker01          Ready    <none>                 32d   v1.21.13
+edu-k8s.worker02          Ready    <none>                 32d   v1.21.13
 ```  
 
 <br/>
 
 
-> Question : Set the node named  `node1` as `unavailable` and `reschedule` all the pods running on it.  
+> Question : Set the node named  `edu-k8s.worker01` as `unavailable` and `reschedule` all the pods running on it.  
 
 <br/><br/>
 
 > 결과값  : drain 명령어 사용
 
 ```bash
-root@newedu:~# kubectl get nodes
-NAME               STATUS                     ROLES    AGE   VERSION
-node1       Ready,SchedulingDisabled   worker   98d   v1.20.0+bafe72f-1054
+ubuntu@edu-k8s:~/$ kubectl get nodes
+NAME                      STATUS   ROLES                  AGE   VERSION
+edu-k8s.dmz-infra01       Ready    <none>                 32d   v1.21.13
+edu-k8s.master01          Ready    control-plane,master   32d   v1.21.13
+edu-k8s.private-infra01   Ready    <none>                 32d   v1.21.13
+edu-k8s.worker01          Ready,SchedulingDisabled    <none>                 32d   v1.21.13
+edu-k8s.worker02          Ready    <none>                 32d   v1.21.13
 ```  
 
 <br/>
-
 
 
 ## 10. Node 정보 수집
@@ -591,7 +609,7 @@ node1       Ready,SchedulingDisabled   worker   98d   v1.20.0+bafe72f-1054
 
 
 ```bash
-root@newedu:~# cat ./RN0001
+ubuntu@edu-k8s:~/$ cat ./RN0001
 2
 ```  
 
@@ -611,7 +629,7 @@ root@newedu:~# cat ./RN0001
 
 
 ```bash
-ubuntu@master:~$ cat ./NODE-count
+ubuntu@edu-k8s:~/$ cat ./NODE-count
 3
 ```  
 
@@ -660,7 +678,7 @@ spec:
 deployment 가  실행되어 있는 것을 확인한다.  
 
 ```bash
-root@newedu:~# kubectl get deploy
+ubuntu@edu-k8s:~/$ kubectl get deploy
 NAME               READY   UP-TO-DATE   AVAILABLE   AGE
 front-end          2/2     2            2           8s
 ```
@@ -674,7 +692,7 @@ front-end          2/2     2            2           8s
 service를  조회 해 보면 NodePort가 생성된 것을 확인 할 수있다.  
 
 ```bash
-root@newedu:~# kubectl get svc
+ubuntu@edu-k8s:~/$ kubectl get svc
 NAME                        TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
 front-end-svc               NodePort    172.30.145.50    <none>        80:32495/TCP     2m41s```  
 ```  
@@ -686,7 +704,7 @@ curl 명령어로 해당 서비스를 호출해 본다.
 아래와 같이 niginx 첫 화면 내용이 나오면 성공.  
 
 ```bash
-root@newedu:~# curl 211.34.231.84:32495
+ubuntu@edu-k8s:~/$ curl 211.34.231.91:32495
 <!DOCTYPE html>
 <html>
 <head>
@@ -781,7 +799,7 @@ spec:
 아래 명령어 사용  
 
 ```bash
-root@newedu:~# kubectl exec -it web-pod sh
+ubuntu@edu-k8s:~/$ kubectl exec -it web-pod sh
 kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
 / # ls
 bin   dev   etc   home  proc  root  run   sys   tmp   usr   var
@@ -835,14 +853,14 @@ spec:
 서비스를 조회한다.   
 
 ```bash
-root@newedu:~# kubectl get svc  
+ubuntu@edu-k8s:~/$ kubectl get svc  
 nginx                       NodePort    172.30.228.71    <none>        80:32767/TCP     16s
 ```  
 
 curl 명령어로 서비스를 호출한다.  
 
 ```bash
-root@newedu:~# curl 211.34.231.84:32767
+ubuntu@edu-k8s:~/$ curl 211.34.231.84:32767
 <!DOCTYPE html>
 <html>
 <head>
@@ -902,7 +920,7 @@ https://kubernetes.io/docs/concepts/configuration/configmap/
 해당 POD의 환경 변수를 확인한다.  
 
 ```bash
-root@newedu:~# kubectl exec  web-pod -- env
+ubuntu@edu-k8s:~/$ kubectl exec  web-pod -- env
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 TERM=xterm
 HOSTNAME=web-pod
@@ -927,7 +945,7 @@ https://kubernetes.io/docs/concepts/configuration/secret/
 Secret는 용도에 따라서 3가지가 있고 우리는 일반 적인 방식인 Generic으로 진행을 합니다.  
 
 ```bash
-root@newedu:~# kubectl create secret --help
+ubuntu@edu-k8s:~/$ kubectl create secret --help
 Create a secret using specified subcommand.
 
 Available Commands:
@@ -971,7 +989,7 @@ file 로  pod에 받기
 `/secrets` 폴더에 해당 화일이 있는지 확인한다.  
 
 ```bash
-root@newedu:~# kubectl exec -it pod-secrets-via-file -- ls /secrets
+ubuntu@edu-k8s:~/$ kubectl exec -it pod-secrets-via-file -- ls /secrets
 password
 ```  
 
@@ -982,7 +1000,7 @@ password
 pod에서 env로 확인한다.  
 
 ```bash
-root@newedu:~# kubectl exec -it pod-secrets-via-env -- env
+ubuntu@edu-k8s:~/$ kubectl exec -it pod-secrets-via-env -- env
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 TERM=xterm
 HOSTNAME=pod-secrets-via-env
@@ -1010,7 +1028,7 @@ PASSWORD=secretpass
 root폴더에서 아래 폴더를 생성한다.  
 
 ```bash
-root@newedu:~# mkdir -p cka_pvc_test
+ubuntu@edu-k8s:~/$ mkdir -p cka_pvc_test
 ```  
 
 
@@ -1021,7 +1039,7 @@ root@newedu:~# mkdir -p cka_pvc_test
 <br/>
 
 ```bash
-root@newedu:~# kubectl get pv app-config
+ubuntu@edu-k8s:~/$ kubectl get pv app-config
 NAME         CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM   STORAGECLASS   REASON   AGE
 app-config   1Gi        RWX            Recycle          Available           az-c                    10s
 ```  
@@ -1065,7 +1083,7 @@ app-config   1Gi        RWX            Recycle          Available           az-c
 <br/>
 
 ```bash
-root@newedu:~# kubectl get po web-server-pod
+ubuntu@edu-k8s:~/$ kubectl get po web-server-pod
 NAME             READY   STATUS    RESTARTS   AGE
 web-server-pod   1/1     Running   0          8s
 ```  

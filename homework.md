@@ -80,17 +80,24 @@ Harbor 설치 ( https가 힘든 사람은 http 로 구성 )
 
 <br/>
 
-- 2번
-- 3번
-- 4번
-- 5번
-- 7번
-- 9번
-- 10번
-- 11번
-- 12번 
-- 14번
+- Master Node에 ssh 로 접속하여 kubectl 명령어 사용 ( worker node에서는 안됨 )
+- Master Node 에서 본인의 폴더에 들어가서 작업을 한다. ( edu1 ~ edu 21 )
+- Namespace는 직접 만들어서 사용한다.
+  - 예 ) kubectl create namespace edu1
+- 모든 작업은 본인의 namespace 에서 진행을 한다. ( 반드시 namespace 명시 :  `-n < 본인 namespace 명 >`  )
+  - 예) kubectl apply -f test.yaml -n edu1  
+  - 예) kubectl get po -n edu1
 
+<br/>
+
+필수 문제
+- 2번 :
+- 3번 : static pod는 본인의 순번을 앞에 붙인다 ( 예, edu1_web )
+- 4번 :
+- 7번 :
+- 9번 :
+- 10번 :
+- 11번 :
 
 
 
