@@ -337,10 +337,6 @@ webserver-5586594bbf-vpf5j          1/1     Running   0          7s
 
 <br/>
 
-
-<br/>
-
-
 ## 7. Rolling Update
 
 <br/>

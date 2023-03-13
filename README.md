@@ -18,6 +18,13 @@
 
 <br/>
 
+---
+
+1주차
+
+
+<br/>
+
 
 0. Chapter 0 : 프로그램 설치  ( [가이드 문서보기](./install.md) )  
 
@@ -66,6 +73,11 @@
 
 ---
 
+2주차
+
+
+<br/>
+
 3. Chapter 4 : 4시간   ( [가이드 문서보기](./chapter4.md) )  
 
      - k8s 이해 및 활용
@@ -81,10 +93,14 @@
      <br/>
 
 
----
-2주차 과제
+<br/>
+
 ---
 
+3주차
+
+
+<br/>
 
 4. Chapter 5 : 10분   ( [가이드 문서보기]( https://github.com/shclub/edu/blob/master/chapter9.md ) ) 
 
@@ -110,10 +126,14 @@
 
      <br/>
 
+<br/>
 
 ---
-3주차 과제
----
+
+4주차
+
+
+<br/>
 
 6. Chapter 7 : 4시간   ( [가이드 문서보기](https://github.com/shclub/edu/blob/master/k8s_middle_hands_on.md) ) 
 
@@ -127,7 +147,3 @@
           - ArgoCD Apps-of-Apps 패턴 
      
      <br/>
-
----
-4주차 과제
----
