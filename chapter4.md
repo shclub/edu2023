@@ -221,7 +221,6 @@ kubernetes의 가장 큰 단위는 cluster 이고 cluster는 서버들의 모임
 <br/>
 
 <img src="./assets/k8s_cluster.png" style="width: 80%; height: auto;"/> 
-
 <br/>
 
 #### 컨트롤 플레인 ( Control Plane )
