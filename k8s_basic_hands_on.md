@@ -597,6 +597,8 @@ flask-edu4-app-74788b6479-t6rvt   1/1     Running   0          24m
 pod-test-app                      1/1     Running   0          11s
 ```
 
+<br/>
+
 아래와 같이 yaml 을 이용해서 Pod 을 생성 할 수 있습니다.
 
 ```bash  
@@ -614,6 +616,8 @@ spec:
     name: pod-test-app-2
 EOF
 ```
+
+<br/>
 
 또는   
 
@@ -677,6 +681,8 @@ Kubernetes 에서 service 는 Pod 들에 접근 할 수 있는 정책을 정의�
 
 아래 명령어를 통해 APP 을 외부에 노출 할 수 있습니다.
 현재 Hands on 환경은 LoadBalancer or Ingress 가 사용이 불가능하므로 Nodeport 를 이용하여 TEST 해보도록 하겠습니다.  
+
+<br/>
 
 expose 옵션 과 create 옵션으로 으로 생성 가능  
 
@@ -781,6 +787,8 @@ spec:
   ...
   ```    
 
+<br/>
+
 위와 같이 ClusterIP 부분은 NodePort 로 변경하고 저장을 합니다.
 (저장 및 종료,  VI 과 동일함.)  
 
@@ -807,7 +815,7 @@ flask-edu4-app   NodePort    10.43.119.5   <none>        5000:30685/TCP   9m7s
 서비스를 테스트 해봅니다. 아래와 같이 설정.
 
 ```bash
-curl <VM Public IP>:<할당된 노드 포트 >
+curl <Node Port IP>:<할당된 노드 포트 >
 ```
 
 <br/>
@@ -817,11 +825,7 @@ root@jakelee:~# curl 211.34.231.84:30685
  Container EDU | POD Working : flask-edu4-app-74788b6479-t6rvt | v=1
 ```  
 
-컨테이너 IP로도 테스트 할 수 있다. 포트는 컨테이너 포트 사용.
-```bash
-root@jakelee:~# curl 211.34.231.84:5000
- Container EDU | POD Working : flask-edu4-app-74788b6479-t6rvt | v=1
-```  
+<br/>
 
 웹브라우저에서도 테스트 할 수 있다.  
 
@@ -830,32 +834,43 @@ root@jakelee:~# curl 211.34.231.84:5000
 
 <br/>
 
-### Scale Out
+### Scale-Out
 
 <br/>
 
-Pod 을 Scale-out 하는 방법을 실습한다.  
+Pod 를 Scale-out 하는 방법을 실습한다.  
 
 - Before  
     <img src="./assets/scale_out_before.png" style="width: 80%; height: auto;"/>  
 - After  
     <img src="./assets/scale_out_after.png" style="width: 80%; height: auto;"/> 
+
 <br/>
 
 Command 를 이용하여 Scale-out 를 한다.  
-기존에 1개의 Pod 으로 실행중이던 APP 을 5개의 Pod 으로 Scale-out 하도록 한다.  
+기존에 1개의 Pod 으로 실행중이던 APP 을 5개의 Pod 으로 Scale-out 하도록 한다.   
 
-현재 deployment 확인
+<br/>
+
+현재 deployment 확인  
+
 ```bash
 root@jakelee:~# kubectl get deployment
 NAME             READY   UP-TO-DATE   AVAILABLE   AGE
 flask-edu4-app   1/1     1            1           123m
 ```  
-Scale-out 를 한다.
+<br/>
+
+Scale-out 한다.
+
+<br/>
+
 ```bash
 root@jakelee:~# kubectl scale deployment --replicas=5 flask-edu4-app
 deployment.apps/flask-edu4-app scaled
 ```
+
+<br/>
 
 Scale-out 된 deployment를 확인한다.
 ```bash
@@ -863,6 +878,8 @@ root@jakelee:~# kubectl get deployment
 NAME             READY   UP-TO-DATE   AVAILABLE   AGE
 flask-edu4-app   5/5     5            5           123m
 ```
+
+<br/>
 
 POD가 5개로 늘어난것을  확인할 수 있고 신규로 4개가 생성되었다.  
 ```bash
@@ -875,17 +892,23 @@ flask-edu4-app-74788b6479-gmvtk   1/1     Running   0          2m30s
 flask-edu4-app-74788b6479-g9j8x   1/1     Running   0          2m30s
 ```
 
+<br/>
+
 서비스 확인(Round-Robin)이 되는지 아래 명령어를 사용하여 확인한다.  
 TEST 환경에 맞게 수정합니다.
 
+<br/>
+
 ```bash
-while true; do curl <본인 VM Public IP>:<할당된 노드포트>; done 
+while true; do curl <Node Port IP>:<할당된 노드포트>; done 
 ```     
+
+<br/>
 
 아래와 같이 Scale-out 되어 서비스 중인 것을 볼 수 있습니다.
 
 ```bash
-root@jakelee:~# while true; do curl 210.106.105.165:30685; done
+root@jakelee:~# while true; do curl 211.34.231.84:30685; done
  Container EDU | POD Working : flask-edu4-app-74788b6479-l59sp | v=1
  Container EDU | POD Working : flask-edu4-app-74788b6479-gmvtk | v=1
  Container EDU | POD Working : flask-edu4-app-74788b6479-4krcs | v=1
@@ -913,18 +936,23 @@ root@jakelee:~# while true; do curl 210.106.105.165:30685; done
 
 Rolling Update / Rollback APP 에 대한 방법을 실습한다. 
 
+<br/>
+
 https://github.com/shclub/edu4 의 저장소의 file을 update 한다.  
 
 - python app.py의 소스를 Update 합니다.    
     <img src="./assets/update_app_v2.png" style="width: 80%; height: auto;"/>  
 - Jenkins 의 소스를 Update 합니다. 리포지토리는 edu4로 이미 변경
     <img src="./assets/update_app_jenkins2.png" style="width: 80%; height: auto;"/> 
+
 <br/>
 
 Jenkins 로 빌드 하여 새로운 버전의 도커이미지를 생성합니다.  
 v2버전이 생성된것을 확인 할 수 있다.  
 
 <img src="./assets/update_app_dockerhub_v2.png" style="width: 80%; height: auto;"/>
+
+<br/>
 
 시간 관계상 Push 된 이미지를 사용할 것입니다.
 
@@ -982,10 +1010,14 @@ Events:
 kubectl set image deployments <deployment 이름> <컨테이너이름>=<변경할 이미지>
 ```
 
+<br/>
+
 ```bash  
 root@jakelee:~# kubectl set image deployments flask-edu4-app edu4=shclub/edu4:v2
 deployment.apps/flask-edu4-app image updated
 ```
+
+<br/>
 
 - Rolling Update 상태 확인
     - 상태 확인
@@ -998,7 +1030,7 @@ deployment.apps/flask-edu4-app image updated
         ```
     - 실제 서비스 확인 : v2로 바뀐것을 확인 할 수 있다.
         ```bash  
-        root@jakelee:~#  while true; do curl 210.106.105.165:30685; done
+        root@jakelee:~#  while true; do curl 211.34.231.84:30685; done
         Container EDU | POD Working : flask-edu4-app-757bcc87db-ft9k9 | v=2
         Container EDU | POD Working : flask-edu4-app-757bcc87db-sns6z | v=2
         Container EDU | POD Working : flask-edu4-app-757bcc87db-l69b8 | v=2
@@ -1063,6 +1095,8 @@ Events:
 Rollback 은 배포된 APP 에 문제가 있을 때, 다시 이전 이미지로 배포 해야 되는 경우 사용하는 방법입니다.   
 (꼭 문제가 있어야 사용이 가능한 것은 아님, 주 목적은 이전 버전으로 Rollback 하기 위함입니다.)
 
+<br/>
+
 
 - Rollback 진행
     - 현재 상태 확인 : 2개의 Revision 이  있고 2번이 현재 버전이다.
@@ -1072,12 +1106,14 @@ Rollback 은 배포된 APP 에 문제가 있을 때, 다시 이전 이미지로 
         REVISION  CHANGE-CAUSE
         1         <none>
         2         <none>
-        ```
-    - Rollback 진행 : 바로 이전 버전으로 진행이 된다.
+        ```  
+
+    - Rollback 진행 : 바로 이전 버전으로 진행이 된다.  
         ```bash  
         root@jakelee:~# kubectl rollout undo deployment flask-edu4-app
         deployment.apps/flask-edu4-app rolled back
-        ```
+        ```  
+
     - Rollback 확인 : 이미지는 shclub/edu4:v1 으로 변경이 되면 Revision은 3으로 올라간다.
         ```bash  
         root@jakelee:~# kubectl describe deployments.apps flask-edu4-app
@@ -1141,7 +1177,7 @@ Rollback 은 배포된 APP 에 문제가 있을 때, 다시 이전 이미지로 
         Container EDU | POD Working : flask-edu4-app-74788b6479-f2kcp | v=1
         Container EDU | POD Working : flask-edu4-app-74788b6479-l7gkx | v=1
         Container EDU | POD Working : flask-edu4-app-74788b6479-l7gkx | v=1
-        ```
+        ```  
 
     - 특정 revision 으로 변경하는 방법
         ```bash      
@@ -1187,6 +1223,8 @@ ip를 기반으로 도메인을 쉽게 사용할 수 있습니다. 실습에서 
     customer2-app-127-0-0-1.nip.io maps to 127.0.0.1
     ```
 
+<br/>
+
 Ingress Nginx 를 설치한다.  
 
 ```bash      
@@ -1217,7 +1255,9 @@ replicaset.apps/ingress-nginx-controller-8cf5559f8   1         1         1      
 NAME                                       COMPLETIONS   DURATION   AGE
 job.batch/ingress-nginx-admission-create   1/1           6s         11m
 job.batch/ingress-nginx-admission-patch    1/1           7s         11m
-```
+```  
+
+<br/>
 
 서비스와 포트를 확인하고 정상 작동하는지 확인한다.
 ```bash      
@@ -1225,7 +1265,11 @@ root@jakelee:~# kubectl get svc -n ingress-nginx
 NAME                                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)                      AGE
 ingress-nginx-controller-admission   ClusterIP   10.43.52.204   <none>        443/TCP                      147m
 ingress-nginx-controller             NodePort    10.43.27.14    <none>        80:31996/TCP,443:31023/TCP   147m
+```  
 
+<br/>
+
+```bash
 root@jakelee:~# curl -I http://127.0.0.1:31996/healthz
 HTTP/1.1 200 OK
 Date: Mon, 04 Apr 2022 09:07:43 GMT
@@ -1233,27 +1277,25 @@ Content-Type: text/html
 Content-Length: 0
 Connection: keep-alive
 
-# 본인 VM Public IP 로도 확인 가능하다.
+# 본인 VM Public IP ( OKD/K8S 인 경우 Node Port IP ) 로도 확인 가능하다.
 root@jakelee:~# curl -I http://210.106.105.165:31996/healthz
 HTTP/1.1 200 OK
 Date: Mon, 04 Apr 2022 09:14:52 GMT
 Content-Type: text/html
 Content-Length: 0
 Connection: keep-alive     
+```  
 
-# 본인 VM 도메인 으로도  확인 가능하다.
-root@jakelee:~# curl -I http://210.106.105.165.nip.io:31996/healthz
-HTTP/1.1 200 OK
-Date: Mon, 04 Apr 2022 09:46:17 GMT
-Content-Type: text/html
-Content-Length: 0
-Connection: keep-alive
-``` 
+<br/>
 
+```bash
 서비스를 도메인으로 접속하기 위해서 ingress를 설정한다.     
 해당 화일은 https://github.com/shclub/edu4/blob/master/ingress_sample1.yaml 에서 다운 받는다.  
 
 backend.service.port.number는 해당 서비스의 컨테이너 포트를 명시한다.  
+```  
+
+<br/>
 
 
 ```yaml
@@ -1279,6 +1321,8 @@ spec:
               number: 5000
 ```
 
+<br/>
+
 ```bash
 root@jakelee:~# kubectl apply -f ingress-sample1.yaml
 ingress.networking.k8s.io/nginx-ingress created
@@ -1287,12 +1331,18 @@ NAME            CLASS   HOSTS                    ADDRESS        PORTS   AGE
 nginx-ingress   nginx   210.106.105.165.nip.io   172.27.0.134   80      12m
 ```
 
+<br/>
+
 ingress를 통하여 서비스를 접속하여 봅니다.
+
+<br/>
 
 ```bash
 root@jakelee:~# curl http://210.106.105.165.nip.io:31996/
  Container EDU | POD Working : flask-edu4-app-74788b6479-rlght | v=1
 ```
+
+<br/>
 
 웹으로도 서비스를 접속하여 봅니다.  
 
@@ -1301,6 +1351,8 @@ root@jakelee:~# curl http://210.106.105.165.nip.io:31996/
 <br/>
 
 ingressclass를 ingress 마다 넣어주는 불편은  아래와 같이 변경하면 ingress yaml 생성시 annotation 에서 삭제 가능하다.
+
+<br/>
 
 ```bash
 root@jakelee:~# kubectl get ingressclasses --namespace=ingress-nginx
@@ -1316,8 +1368,6 @@ metadata:
   annotations:
     ingressclass.kubernetes.io/is-default-class: "true"  <<추가
 ```
-
-<br/>
 
 <br/>
 
@@ -1344,6 +1394,8 @@ helm-install-traefik--1-5g9lq             0/1     Completed   0            36m
 traefik-747c4ffbd6-q6hpd                  1/1     Running     0            36m
 ```  
 
+<br/>
+
 traefik service를 확인한다.  
 
 ```bash
@@ -1352,11 +1404,15 @@ NAME      TYPE           CLUSTER-IP      EXTERNAL-IP    PORT(S)                 
 traefik   LoadBalancer   10.43.167.187   172.27.0.134   80:30622/TCP,443:31534/TCP   9d
 ```  
 
+<br/>
+
 Ingress를 생성하기 전에 inspekt라는 pod를 inspect하는 서비스를 생성한다.  
 
 ```bash
 root@jakelee:~# kubectl apply -k github.com/shclub/inspekt
 ```  
+
+<br/>
 
 Pod와 서비스가 생성된 것을 확인한다.  
 
@@ -1365,9 +1421,14 @@ Pod와 서비스가 생성된 것을 확인한다.
 ingress를 생성하기 위해 vi 에디터로 inspekt_ingress.yaml 화일을 생성한다.    
 - 여기에서도 다운 가능 : https://github.com/shclub/edu4/blob/master/inspekt_ingress.yaml
 
+
+<br/>
+
 아래에 kubernetes.io/ingress.class: traefik 의미는 traefik의 ingress controller를 사용하겠다는 의미이다.  
 
 서비스 포트는 컨테이너 포트이다.  
+
+<br/>
 
 ```bash
 apiVersion: networking.k8s.io/v1
@@ -1392,6 +1453,8 @@ spec:
 
 ```  
 
+<br/>
+
 해당 화일을 적용하고 ingress가 신규로 생성된 것을 확인 할 수 있다.  
 
 ```bash
@@ -1402,6 +1465,8 @@ NAME                      CLASS    HOSTS                              ADDRESS   
 flask-edu4-app-v1         nginx    210.106.105.165.nip.io             172.27.0.134   80      3d12h
 inspekt-traefik-ingress   <none>   inspekt.210.106.105.165.sslip.io   172.27.0.134   80      5s
 ```  
+
+<br/>
 
 hosts 의 값을 복사하여 web browser 에서 실행한다.  
 80번 포트로 접속이 된것을 확인 할 수 있다.  
@@ -1416,6 +1481,8 @@ http (80) 포트인 경우는 위와 같이 가능하지만 https (443) 인 경�
 
 /var/lib/rancher/k3s/server/manifests/traefik.yaml 화일을 수정한다.   
 
+<br/>
+
 ```bash
 root@jakelee:~# vi /var/lib/rancher/k3s/server/manifests/traefik.yaml
 ```    
@@ -1428,12 +1495,18 @@ valuesContent: |-
   - "--serversTransport.insecureSkipVerify=true" << 추가
 ```  
 
+<br/>
+
 이제 https(443) 포트 케이스는 ingress로 생성할 준비가 되어 있다.    
 
 ingress를 생성하기 위해 vi 에디터로 argocd_ingress.yaml 화일을 생성한다.    
 - 여기에서도 다운 가능 : https://github.com/shclub/edu4/blob/master/argocd_ingress.yaml
 
-argocd는 4주차에 설치 실습이 있어 4주차 설치 이후 아래 내용을 따라 하면 된다.    
+<br/>
+
+argocd는 3주차에 설치 실습이 있어 4주차 설치 이후 아래 내용을 따라 하면 된다.    
+
+<br/>
 
 argocd 서비스를 확인힌다.  
 
@@ -1450,8 +1523,9 @@ argocd-server-metrics                     ClusterIP   10.43.200.82    <none>    
 argocd-server                             NodePort    10.43.247.167   <none>        80:30000/TCP,443:30001/TCP   9d
 ```
 
-우리가 ingress 설정을 할 서비스는 argocd-server 이다.
+<br/>
 
+우리가 ingress 설정을 할 서비스는 argocd-server 이다.
 
 ```bash
 apiVersion: networking.k8s.io/v1
@@ -1477,6 +1551,8 @@ spec:
               number: 80 
 ```  
 
+<br/>
+
 argocd namespace에 ingress를 적용하고 ingress를 확인한다.  
 
 ```bash
@@ -1486,6 +1562,8 @@ root@jakelee:~# kubectl get ing -n argocd
 NAME             CLASS    HOSTS                             ADDRESS        PORTS   AGE
 argocd-ingress   <none>   argocd.210.106.105.165.sslip.io   172.27.0.134   80      65m
 ```  
+
+<br/>
 
 hosts 의 값을 복사하여 web browser 에서 실행한다.  
 https (443) 로 접속이 된것을 확인 할 수 있다.  
@@ -1511,6 +1589,8 @@ argocd-server                      1/1     1            1           9d
 root@jakelee:~# kubectl edit deploy argocd-server  -n argocd
 ```  
 
+<br/>
+
 command 의 argocd-server 밑에 -- insecure를 추가하고 저장하고 나온다.  
 
 argocd-server pod가 자동으로 재 실행 된다.  
@@ -1522,6 +1602,8 @@ argocd-server pod가 자동으로 재 실행 된다.
         - --insecure  << 추가
         env:
 ```  
+
+<br/>
 
 이제 웹에서 다시 로그인을 수행한다.  
 
