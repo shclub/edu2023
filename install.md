@@ -431,6 +431,51 @@ setting 으로 이동하여 Make public 클릭후 repository 이름을 입력후
 
 <br/>
 
+
+project.config.openshift.io/cluster 사용자 정의 리소스를 편집합니다.  
+- MCP ( Machine Configuration Pool )를 적용 하는것이기 때문에 주의를 요합니다.  
+
+<br/>
+
+```bash
+root@newedu:~# oc edit image.config.openshift.io/cluster
+```  
+
+<br/>
+
+
+아래와 같이 insecureRegistries에 private docker registry를 적용합니다.
+
+<br/>
+
+```bash
+...
+spec:
+  registrySources:
+    insecureRegistries:
+    - 211.252.85.148:40002
+...
+```  
+
+<br/>
+
+master node 부터 MCP가 적용이 되어 모든 node가 적용 되기 까지 시간이 많이 걸림. (Node 당 3분 정도)  
+
+<br/>
+
+아래 명령어로 조회를 해보면  UPDATED가 True가 되어야 완료가 된 것입니다.
+
+<br/>
+
+```bash
+root@newedu:~# oc get mcp
+NAME     CONFIG                                             UPDATED   UPDATING   DEGRADED   MACHINECOUNT   READYMACHINECOUNT   UPDATEDMACHINECOUNT   DEGRADEDMACHINECOUNT   AGE
+master   rendered-master-abf3629f4f7d30a2463347c70fd3c097   True      False      False      3              3                   3                     0                      268d
+worker   rendered-worker-e019e9db2e9c193192fdd56d1fc5b10a   True      False      False      13             13                  13                    0                      268d
+```  
+
+<br/>
+
 OKD 의 각 worker node에 접속하여 /etc/containers/registries.conf 에  private docker registry를 설정한다.  
 
 <br/>
