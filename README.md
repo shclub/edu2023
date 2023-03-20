@@ -114,11 +114,13 @@
 
 5. Chapter 5 : 1시간   ( [가이드 문서보기](https://github.com/shclub/edu/blob/master/k8s_middle_hands_on_2023.md) ) 
 
-     - Helm Chart 개념 및 설명
+     - Docker Hub Rate Limit
+     - Helm
+     - Kubernetes의 Node Scheduling
      - Storage Volume  ( PV/PVC , DB 설치 + NFS )
           - MariaDB NFS 에 설치 ( /w Helm Chart ) 
-     - NFS 라이브러리 설치 ( Native Kubernetes )
      - Service - Headless, Endpoint, ExternalName
+     - NFS 라이브러리 설치 ( Native Kubernetes )
      
      <br/>
 
@@ -147,7 +149,7 @@
 
 <br/>
 
-6. Chapter 7 : 4시간   ( [가이드 문서보기](./chapter6.md) ) 
+7. Chapter 6 : 4시간   ( [가이드 문서보기](./chapter6.md) ) 
      - Podman 소개
      - Skaffold 소개
      - React/SpringBoot/MariaDB 3-tier 구조 한번에 배포 하기
