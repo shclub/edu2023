@@ -104,10 +104,6 @@
           - NFS 설정 및 접속  
      - ArgoCD 설치 및 설정  ( OKD )  
 
-    <br/>
-
-     - 과제  : Chapter1의 Jenkins Pipeline 을 Private Docker registry로 변경해 보기 
-
      <br/>
 
 <br/>
