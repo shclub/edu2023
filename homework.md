@@ -136,15 +136,25 @@ TODO
 
 <br/>
 
-secret를 만들기 위해 yaml 화일을 생성한다.      
+secret를 만들기 위해 yaml 화일을 생성한다.        
 
-TODO
+TODO  
+
+secret은 2개의 필드가 필요하며 아래 helm jenins_values.yaml 화일의 
+2개의 필드와 이름이 같아야 한다.  
 
 <br/>
 
-TODO
+```bash
+ 50   admin:
+ 51     existingSecret: "jenkins-admin-secret" #
+ 52     userKey: jenkins-admin-user
+ 53     passwordKey: jenkins-admin-password
+```  
+
 
 <br/>
+
 
 data 부분에 base64 인코딩 된 값을 넣어준다.
 
