@@ -116,6 +116,8 @@
      - Storage Volume  ( PV/PVC , DB 설치 + NFS )
           - MariaDB NFS 에 설치 ( /w Helm Chart ) 
      - Service - Headless, Endpoint, ExternalName
+     - Daemonset , Job , CronJob
+     - configMap , Secret
      - NFS 라이브러리 설치 ( Native Kubernetes )
      
      <br/>
