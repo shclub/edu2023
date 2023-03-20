@@ -495,7 +495,7 @@ jenkins/jenkins	4.3.8        	2.387.1    	Jenkins - Build great things at any sc
 
 <br/>
 
-bitnami/jenkins 차트에서 차트의 변수 값을 변경하기 위해 jenkins_values.yaml 화일을 추출한다.
+jenkins/jenkins 차트에서 차트의 변수 값을 변경하기 위해 jenkins_values.yaml 화일을 추출한다.
 
 <br/>
 
@@ -702,7 +702,7 @@ TODO : 플러그인 설치
 
 <br/>
 
-plugin 설정을 완료 하면 Manage jenkins -> Manage Nodes and Cloudds 메뉴로 이동하여 Jenkins 설정을 한다.  
+plugin 설정을 완료 하면 Manage jenkins -> Manage Nodes and Clouds 메뉴로 이동하여 Jenkins 설정을 한다.  
 
 <br/>
 
