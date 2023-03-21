@@ -182,7 +182,7 @@ super-secret                         Opaque                                1    
 
 <br/>
 
-`jenkins-admin` service account 를 생성 하고  ClusterRole 과 ClusterRolebinding 을 생성한다.  
+`jenkins-admin` service account 를 생성 하고  Role 과 Rolebinding 을 생성한다.  
 
 TODO : sa 생성
 
@@ -200,7 +200,7 @@ jenkins-admin 권한은 최소화 한다.
 
 ```bash
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: Role
 metadata:
   name: jenkins-admin
 rules:
@@ -221,7 +221,7 @@ rules:
   verbs: ["get", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: RoleBinding
 metadata:
   name: jenkins-admin
 roleRef:
