@@ -141,7 +141,7 @@ secret를 만들기 위해 yaml 화일을 생성한다.
 TODO  
 
 secret은 2개의 필드가 필요하며 아래 helm jenins_values.yaml 화일의 
-2개의 필드와 이름이 같아야 한다.  
+2개의 필드 ( 유저와 비밀번호 ) 와 이름이 같아야 한다.  
 
 <br/>
 
@@ -152,9 +152,7 @@ secret은 2개의 필드가 필요하며 아래 helm jenins_values.yaml 화일�
  53     passwordKey: jenkins-admin-password
 ```  
 
-
 <br/>
-
 
 data 부분에 base64 인코딩 된 값을 넣어준다.
 
@@ -539,7 +537,17 @@ pvc는 본인의 pvc 를 설정한다.
 
 <br/>
 
+installPlugins에서 kubernetes 값 아래와 같이 반드시 변경 필요
+
+<br/>
+
 ```bash
+244   installPlugins:
+245     - kubernetes:3842.v7ff395ed0cf3 #3734.v562b_b_a_627ea_c
+246     - workflow-aggregator:590.v6a_d052e5a_a_b_5
+247     - git:4.13.0
+248     - configuration-as-code:1569.vb_72405b_80249
+...
 508   # Openshift route
 509   route:
 510     enabled: true  # true 로 변경
