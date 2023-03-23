@@ -832,7 +832,8 @@ Git Parameter 가 안보이는 수강생은 plugins 에서 git parameter를 설�
 
 git Repostory는 본인의 git 주소를 입력하고 script path를 입력한다.    
 
-강사 edu1 (https://github.com/shclub/edu1) repository의 Jenkinsfile_okd 화일을 참고하여 신규 생성한다.  
+강사 edu1 (https://github.com/shclub/edu1) repository의 Jenkinsfile_okd 화일을 참고하여 신규 생성한다.    
+( 현재 OKD 네트웍 이슈로 Harbor 연결 불가 , dockerhub로 연동 하고 Jenkinsfile_dockerhub 참고 )
 
 <br/>
 

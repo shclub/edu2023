@@ -18,7 +18,11 @@
 
 <br/>
 
-과제 :  [과제 문서보기](./homework.md) 
+> 과제 :  [과제 문서보기](./homework.md)   
+
+<br/>
+
+> 답안 :  [과제 답안보기](https://github.com/shclub/edu_homework/blob/master/homework.md)
 
 <br/>
 
@@ -37,6 +41,7 @@
      - Helm 설치
      - Github 계정 생성
      - Docker Hub 계정 생성 
+     - OKD 에 Insecure Registry 설정
 
      <br/>
 
@@ -152,9 +157,13 @@
 
 7. Chapter 6 : 4시간   ( [가이드 문서보기](./chapter6.md) ) 
      - Podman 소개
-     - Skaffold 소개
+     - Skaffold ( Jib ) 소개
+     - React/SpringBoot CI/CD 설명 
+          - 언어별 Build Tool 생성 (/W CORS) 
+          - Gitops Repository 구성 
+          - CI Pipeline 구성 및 빌드
+          - ArgoCD 배포
      - React/SpringBoot/MariaDB 3-tier 구조 한번에 배포 하기
-          - Helm Umbrella 패턴 ( /w SubChart )
           - ArgoCD Apps-of-Apps 패턴 
      - DevPilot 소개
 
