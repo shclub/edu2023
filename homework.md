@@ -8,6 +8,7 @@
     -  Portainer 설치
     -  Harbor 구성해 보기 
 2. 2주차 : CKA 문제 풀어 보기 [ 문제 ](./cka.md) 
+    -  CKA 전체 문제 ( https://github.com/shclub/cka )  
 3. 3주차 : kubernetes에 Jenkins Master/Slave 구성하기 (CI - Python )
 4. 4주차 : kubernetes에 CI/CD 구성 (CI : Maven/Skaffold , CD : ArgoCD/kustomize )
 

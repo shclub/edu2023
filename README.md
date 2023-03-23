@@ -18,6 +18,10 @@
 
 <br/>
 
+2023년 B2B 역량 강화 Cloud Native 교육
+
+<br/>
+
 > 과제 :  [과제 문서보기](./homework.md)   
 
 <br/>
@@ -73,8 +77,14 @@
      - Github Action , workflow 사용 ( GoodBye Jenkins ) 
      - Docker Compose 설명 및 설치 , 활용 ( DB 연동 )  
 
-     <br/>
+     <br/><br/>
 
+     - 과제   
+          - Nexus private registry를 사용하여 Jenkins Pipeline 구성      
+          - 컨테이너 Mysql DB 활용
+          - Portainer 설치
+          - Harbor 구성해 보기
+     
 <br/>
 
 
@@ -96,10 +106,15 @@
           - Serivce Expose ( Ingress / Route )  
 
      <br/>
+     <br/>
 
+     - 과제   
+          - CKA 문제 풀어 보기 [ 문제 링크 ](./cka.md)       
+          - CKA 전체 문제 : 나중에 풀어보기 [ 문제 링크 ]( https://github.com/shclub/cka ) 
+     
+     <br/>
 
 <br/>
-
 
 ## 3주차
 
@@ -167,6 +182,6 @@
           - ArgoCD Apps-of-Apps 패턴 
      - DevPilot 소개
 
-     <br/>
+     <br/><br/>
 
      - 과제  : kubernetes에 CI/CD 구성 (CI : Maven/Skaffold , CD : ArgoCD/kustomize )
