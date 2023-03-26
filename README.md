@@ -172,11 +172,11 @@
 
 7. Chapter 6 : 4시간   ( [가이드 문서보기](./chapter6.md) ) 
      - Podman 소개
-     - Skaffold ( Jib ) 소개
-     - React/SpringBoot CI/CD 설명 
-          - 언어별 Build Tool 생성 (/W CORS) 
+     - Jib ( Skaffold ) 소개
+     - React/SpringBoot CI/CD 설명 및 실습
+          - 언어별(React/SpringBoot) Build Tool 생성 
           - Gitops Repository 구성 
-          - CI Pipeline 구성 및 빌드
+          - 언어별 (React/SpringBoot) CI Pipeline 구성 및 빌드 (/W CORS) 
           - ArgoCD 배포
      - React/SpringBoot/MariaDB 3-tier 구조 한번에 배포 하기
           - ArgoCD Apps-of-Apps 패턴 
