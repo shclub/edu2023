@@ -54,7 +54,7 @@ Podman은 Docker의 대안이 되는 강력한 컨테이너 엔진이지만, 이
 일부 개발자는 개발 단계에서 Docker를 사용하고 런타임 환경에서 프로그램을 Podman으로 이전해 Podman과 Docker를 모두 활용함으로써 더욱 높은 수준의 보안을 구현하기도 합니
 
 
-##  Skaffold ( Jib ) 소개
+##  Jib ( skaffold ) 소개
 
 <br/>
 
@@ -133,7 +133,7 @@ Podman은 Docker의 대안이 되는 강력한 컨테이너 엔진이지만, 이
 <br/><br/>
 
 
-## React/SpringBoot CI/CD 설명
+## React/SpringBoot CI/CD 설명 및 실습
 
 <br/>
 
@@ -1042,7 +1042,50 @@ TAG가 빌드 시간 입니다.
 <br/>
 
 이제 ArgoCD 에 배포를 진행 하도록 합니다.  
-Dependency 때문에 backend 를 먼저 배포 합니다.
+Dependency 때문에 ( Nginx ) backend 를 먼저 배포 합니다.
+
+<br/>
+
+Backend 를 배포합니다.  
+
+이름이 겹치지 않도록 `<본인 namespace>-backend` 로 이름을 만든다.
+
+<br/>
+
+New APP 클릭 한후 Application 이름을 위에 제시한 명명 규칙 으로 기입한다.  
+프로젝트 이름은 본인의 Namespace를 입력한다.  
+
+<img src="./assets/3tier_backend_argo1.png" style="width: 60%; height: auto;"/>
+
+<br/>
+
+gitops 프로젝트 이름과 path 는  `.` 으로 입력하고 계속하여 k8s 이름과 namespace 를 넣으면 된다.
+
+<img src="./assets/3tier_backend_argo2.png" style="width: 60%; height: auto;"/>
+
+<br/>
+
+ArgoCD에서 kustomization 화일을 입력하여 보여준다.
+
+<img src="./assets/3tier_backend_argo3.png" style="width: 60%; height: auto;"/>
+
+<br/>
+
+Create 버튼을 클릭하여 생성을 하고 Sync 버튼을 클릭한다.
+
+<img src="./assets/3tier_backend_argo4.png" style="width: 60%; height: auto;"/>
+
+<br/>
+
+Syncronize 버튼을 클릭하여 Application 생성을 완료 한다.
+
+<img src="./assets/3tier_backend_argo5.png" style="width: 60%; height: auto;"/>
+
+<br/>
+
+정상적으로 Resource 들이 생성 된 것을 확인 할 수 있다.  
+
+<img src="./assets/3tier_backend_argo6.png" style="width: 60%; height: auto;"/>
 
 <br/>
 
