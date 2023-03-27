@@ -400,7 +400,7 @@ Github Action 에서 Docker Jre runtime 17 를 클릭하여 도커이미지를 �
 
 <br>
 
-GitOps를 구현 하기 위해서는 소스와 OPS 폴더가 분리되어야 합니다.
+GitOps를 구현 하기 위해서는 소스와 OPS 를 위한 Repository 가 분리되어야 합니다.
 
 예제에서는 아래와 같이 총 4개의 Repository 로 분리하였습니다.
 
@@ -546,7 +546,7 @@ create table EMPLOYEE (id int primary key,empName varchar(255),empDeptName varch
 
 insert into EMPLOYEE  values(1,'1','1','1','1');  
 
-SELECT NEXTVAL(hibernate_sequence)
+SELECT NEXTVAL(hibernate_sequence);
 ```  
 
 <br/>
