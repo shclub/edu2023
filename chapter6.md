@@ -402,14 +402,22 @@ Github Action 에서 Docker Jre runtime 17 를 클릭하여 도커이미지를 �
 
 GitOps를 구현 하기 위해서는 소스와 OPS 폴더가 분리되어야 합니다.
 
-예제에서는 아래와 같이 분리하였습니다.
+예제에서는 아래와 같이 총 4개의 Repository 로 분리하였습니다.
+
+아래의 4개 Repository 를 본인의 repository에 fork 합니다.
 
 <br/>
 
-|구분|소스| Ops |
+예 ) https://github.com/shclub/edu12-3
+
+<br/>
+
+
+
+|구분|소스 Repository| Ops Repository|
 |:--|:--| :-------|  
 | FrontEnd | edu12-3	| edu12-frontend-gitops |
-| Backend | edu12-4 |	edu12-backend-gitops |
+| BackEnd | edu12-4 |	edu12-backend-gitops |
 
 
 <br/>
@@ -614,6 +622,7 @@ React 와 Spring Boot 연동을 하기 위해서는 서로 간의 port 를 매�
 CORS 
 - https://devlog-wjdrbs96.tistory.com/m/429
 - https://velog.io/@prayme/CORS-%EC%A0%95%EB%B3%B5%EA%B8%B0
+- https://narup.tistory.com/208
 
 <br/>
 

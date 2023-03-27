@@ -898,3 +898,781 @@ Harbor로 이동하여 이미지가 정상적으로 Push 되었는지 확인한�
 강사의 Jenkjns : https://jenkins-edu30.apps.211-34-231-82.nip.io/   
 - 계정 : admin
   
+
+
+##  4주차
+
+<br/>
+
+### kubernetes에 CI/CD 구성 (CI : Maven/Skaffold/SonarQube , CD : ArgoCD/kustomize )
+
+
+ 
+<br/>
+
+VM에 로그인 한 후에 sonar 폴더를 생성한다.  
+
+<br/>
+
+
+```bash
+root@newedu:~# mkdir -p sonar
+root@newedu:~# cd sonar
+``` 
+
+<br/>
+
+#### Helm 으로 PostgreSQL 설치
+
+<br/>
+
+helm repo 업데이트를 합니다.  
+
+```bash
+root@newedu:~/sonar# helm repo update
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "jenkins" chart repository
+...Successfully got an update from the "nfs-subdir-external-provisioner" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+```  
+
+<br/>
+
+
+helm 에서 postgreSQL 를 검색합니다.
+
+```bash
+root@newedu:~/sonar# helm search repo postgresql
+NAME                 	CHART VERSION	APP VERSION	DESCRIPTION
+bitnami/postgresql   	12.2.6       	15.2.0     	PostgreSQL (Postgres) is an open source object-...
+bitnami/postgresql-ha	11.2.0       	15.2.0     	This PostgreSQL cluster solution includes the P...
+bitnami/supabase     	0.1.4        	0.23.2     	Supabase is an open source Firebase alternative...
+```  
+
+<br/>
+
+bitnami/postgresql 차트에서 차트의 변수 값을 변경하기 위해 postgre_values.yaml 화일을 추출한다.
+
+<br/>
+
+
+```bash
+root@newedu:~/sonar#  helm show values bitnami/postgresql  > postgre_values.yaml
+```
+
+<br/>
+
+postgre_values.yaml 를 수정한다.  
+
+- 28 ,29,30,31 : 본인이 DB 계정 설정
+- 646 : 본인의 pvc로 변경
+- 669 : 5G로 사이즈 변경
+- 694 : read replica 0
+
+<br/>
+
+```bash
+  27     auth:
+  28       postgresPassword: "edu1234"
+  29       username: "edu"
+  30       password: "edu1234"
+  31       database: "edu"
+  32       existingSecret: ""
+ ... 
+ 640   persistence:
+ 641     ## @param primary.persistence.enabled Enable PostgreSQL Primary data persistence using PVC
+ 642     ##
+ 643     enabled: true
+ 644     ## @param primary.persistence.existingClaim Name of an existing PVC to use
+ 645     ##
+ 646     existingClaim: "postgre-edu-pvc"
+ 647     ## @param primary.persistence.mountPath The path the volume will be mounted at
+ 648     ## Note: useful when using custom PostgreSQL images
+ 649     ##
+ 650     mountPath: /bitnami/postgresql
+ 651     ## @param primary.persistence.subPath The subdirectory of the volume to mount to
+ 652     ## Useful in dev environments and one PV for multiple services
+ 653     ##
+ 654     subPath: ""
+ 655     ## @param primary.persistence.storageClass PVC Storage Class for PostgreSQL Primary data volume
+ 656     ## If defined, storageClassName: <storageClass>
+ 657     ## If set to "-", storageClassName: "", which disables dynamic provisioning
+ 658     ## If undefined (the default) or set to null, no storageClassName spec is
+ 659     ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+ 660     ##   GKE, AWS & OpenStack)
+ 661     ##
+ 662     storageClass: ""
+ 663     ## @param primary.persistence.accessModes PVC Access Mode for PostgreSQL volume
+ 664     ##
+ 665     accessModes:
+ 666       - ReadWriteOnce
+ 667     ## @param primary.persistence.size PVC Storage Request for PostgreSQL volume
+ 668     ##
+ 669     size: 5Gi
+...
+ 688 readReplicas:
+ 689   ## @param readReplicas.name Name of the read replicas database (eg secondary, slave, ...)
+ 690   ##
+ 691   name: read
+ 692   ## @param readReplicas.replicaCount Number of PostgreSQL read only replicas
+ 693   ##
+ 694   replicaCount: 0
+ ```
+
+<br/>
+
+이제 postgreSQL DB를 설치 합니다.
+
+<br/>
+
+TODO
+
+<br/>
+
+pod를 확인한다.
+
+```bash
+root@newedu:~/sonar# kubectl get po
+NAME                                        READY   STATUS    RESTARTS   AGE
+sonar-postgre-postgresql-0                  1/1     Running   0          82s
+```
+
+<br/>
+
+NFS 서버에 접속하여 data 폴더가 생성 되었는지 확인한다.  
+
+```bash
+[root@edu edu]# pwd
+/mnt/postgre/edu
+[root@edu edu]# ls data
+PG_VERSION  pg_commit_ts   pg_logical    pg_replslot   pg_stat      pg_tblspc    pg_xact               postmaster.pid
+base        pg_dynshmem    pg_multixact  pg_serial     pg_stat_tmp  pg_twophase  postgresql.auto.conf
+global      pg_ident.conf  pg_notify     pg_snapshots  pg_subtrans  pg_wal       postmaster.opts
+```  
+
+<br/>
+
+
+#### Helm 으로 SonarQube 설치
+
+
+<br/>
+
+
+helm repo 업데이트를 합니다.  
+
+```bash
+root@newedu:~/sonar# helm repo update
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "jenkins" chart repository
+...Successfully got an update from the "nfs-subdir-external-provisioner" chart repository
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+```  
+
+
+<br/>
+
+helm 에서 sonarqube 를 검색합니다.
+
+```bash
+root@newedu:~/sonar# helm search repo sonarqube
+NAME                 	CHART VERSION	APP VERSION	DESCRIPTION
+NAME             	CHART VERSION	APP VERSION    	DESCRIPTION
+bitnami/sonarqube	2.1.4        	9.9.0          	SonarQube(TM) is an open source quality managem...
+```  
+
+<br/>
+
+bitnami/sonarqube 차트에서 차트의 변수 값을 변경하기 위해 sonarqube_values.yaml 화일을 추출한다.
+
+<br/>
+
+
+```bash
+root@newedu:~/sonar#  helm show values bitnami/sonarqube  > sonarqube_values.yaml
+```
+
+<br/>
+
+먼저 postgreSQL DB의 서비스 이름을 확인합니다.  
+
+
+```bash
+root@newedu:~/sonar# kubectl get svc
+NAME                          TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+jenkins                       NodePort    172.30.247.178   <none>        8080:30332/TCP   10d
+jenkins-agent                 ClusterIP   172.30.140.40    <none>        50000/TCP        10d
+sonar-postgre-postgresql      ClusterIP   172.30.225.163   <none>        5432/TCP         19m
+```  
+
+
+<br/>
+
+sonarqube_values.yaml 를 수정한다.  
+
+- 708 : pvc 사용으로 true
+- 722 : 5G로 사이즈 변경
+- 728 : 본인의 pvc로 변경
+- 1004 : 이미 postgresql db 설치 했기 때문에 false
+- 1065 : postgresql db 서비스 이름 ( 위에서 조회 )
+
+<br/>
+
+```bash
+ 706 persistence:
+ 707   ## @param persistence.enabled Enable persistence using Persistent Volume Claims
+ 708   ##
+ 709   enabled: true
+ 710   ## @param persistence.storageClass Persistent Volume storage class
+ 711   ## If defined, storageClassName: <storageClass>
+ 712   ## If set to "-", storageClassName: "", which disables dynamic provisioning
+ 713   ## If undefined (the default) or set to null, no storageClassName spec is set, choosing the default provisioner
+ 714   ##
+ 715   storageClass: ""
+ 716   ## @param persistence.accessModes [array] Persistent Volume access modes
+ 717   ##
+ 718   accessModes:
+ 719     - ReadWriteOnce
+ 720   ## @param persistence.size Persistent Volume size
+ 721   ##
+ 722   size: 5Gi
+ 723   ## @param persistence.dataSource Custom PVC data source
+ 724   ##
+ 725   dataSource: {}
+ 726   ## @param persistence.existingClaim The name of an existing PVC to use for persistence
+ 727   ##
+ 728   existingClaim: "sonar-edu-pvc"
+...
+1001 postgresql:
+1002   ## @param postgresql.enabled Deploy PostgreSQL subchart
+1003   ##
+1004   enabled: false
+1005   ## @param postgresql.nameOverride Override name of the PostgreSQL chart
+...
+1062 externalDatabase:
+1063   ## @param externalDatabase.host Host of an external PostgreSQL instance to connect (only if postgresql.enabled=false)
+1064   ##
+1065   host: "sonar-postgre-postgresql"
+1066   ## @param externalDatabase.user User of an external PostgreSQL instance to connect (only if postgresql.enabled=false)
+1067   ##
+1068   user: edu
+1069   ## @param externalDatabase.password Password of an external PostgreSQL instance to connect (only if postgresql.enabled=fa     lse)
+1070   ##
+1071   password: "edu1234"
+1072   ## @param externalDatabase.existingSecret Secret containing the password of an external PostgreSQL instance to connect (o     nly if postgresql.enabled=false)
+1073   ## Name of an existing secret resource containing the DB password in a 'password' key
+1074   ##
+1075   existingSecret: ""
+1076   ## @param externalDatabase.database Database inside an external PostgreSQL to connect (only if postgresql.enabled=false)
+1077   ##
+1078   database: edu
+ ```
+
+<br/>
+
+sonarqube를 설치 하기 전에 sonarqube service account 에게 권한을 부여합니다.  
+
+```bash
+root@newedu:~/sonar# oc adm policy add-scc-to-user anyuid -z sonarqube
+root@newedu:~/sonar# oc adm policy add-scc-to-user privileged -z sonarqube
+```  
+
+<br/>
+
+이제 sonarqube 를 설치 합니다.
+
+
+```bash
+root@newedu:~/sonar# helm install sonarqube bitnami/sonarqube -f sonarqube_values.yaml
+NAME: sonarqube
+LAST DEPLOYED: Mon Mar 27 10:51:23 2023
+NAMESPACE: edu30
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+** Please be patient while the chart is being deployed **
+
+Your SonarQube(TM) site can be accessed through the following DNS name from within your cluster:
+
+    sonarqube.edu30.svc.cluster.local (port 80)
+
+To access your SonarQube(TM) site from outside the cluster follow the steps below:
+
+1. Get the SonarQube(TM) URL by running these commands:
+
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+        Watch the status with: 'kubectl get svc --namespace edu30 -w sonarqube'
+
+   export SERVICE_IP=$(kubectl get svc --namespace edu30 sonarqube --template "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}")
+   echo "SonarQube(TM) URL: http://$SERVICE_IP/"
+
+2. Open a browser and access SonarQube(TM) using the obtained URL.
+
+3. Login with the following credentials below:
+
+  echo Username: user
+  echo Password: $(kubectl get secret --namespace edu30 sonarqube -o jsonpath="{.data.sonarqube-password}" | base64 -d)
+  ```
+
+<br/>
+
+pod를 확인한다.
+
+```bash
+root@newedu:~/sonar# kubectl get po
+NAME                                        READY   STATUS    RESTARTS   AGE
+jenkins-0                                   2/2     Running   26         9d
+nfs-test-589c488d6f-8lk5p                   1/1     Running   2          10d
+sonar-postgre-postgresql-0                  1/1     Running   0          54m
+sonarqube-5d48b66455-5sgzh                  1/1     Running   0          3m7s
+```
+
+<br/>
+
+NFS 서버에 접속하여 data 폴더가 생성 되었는지 확인한다.  
+
+```bash
+[root@edu edu]# pwd
+/mnt/sonar/edu
+[root@edu edu]# ls
+data  extensions
+```  
+
+<br/>
+
+서비스를 조회해서 LoadBalancer Type을 NodePort로 변경합니다.  
+
+```bash
+root@newedu:~/sonar# kubectl get svc
+NAME                          TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                       AGE
+jenkins                       NodePort       172.30.247.178   <none>        8080:30332/TCP                10d
+jenkins-agent                 ClusterIP      172.30.140.40    <none>        50000/TCP                     10d
+sonar-postgre-postgresql      ClusterIP      172.30.225.163   <none>        5432/TCP                      64m
+sonar-postgre-postgresql-hl   ClusterIP      None             <none>        5432/TCP                      64m
+sonarqube                     LoadBalancer   172.30.154.233   <pending>     80:30262/TCP,9001:30118/TCP   13m
+``` 
+
+<br/>
+
+```bash
+root@newedu:~/sonar# kubectl edit svc sonarqube
+service/sonarqube edited
+``` 
+
+<br/>
+
+```bash
+root@newedu:~/sonar# kubectl get svc
+NAME                          TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                       AGE
+jenkins                       NodePort    172.30.247.178   <none>        8080:30332/TCP                10d
+jenkins-agent                 ClusterIP   172.30.140.40    <none>        50000/TCP                     10d
+sonar-postgre-postgresql      ClusterIP   172.30.225.163   <none>        5432/TCP                      64m
+sonar-postgre-postgresql-hl   ClusterIP   None             <none>        5432/TCP                      64m
+sonarqube                     NodePort    172.30.154.233   <none>        80:30262/TCP,9001:30118/TCP   13m
+```  
+
+<br/>
+
+웹브라우저에서 http://211.34.231.84:30262/로 접속하여 로그인합니다.   
+
+- id 는 user
+- 비밀번호는 아래와 같이 추출합니다.
+  ```bash
+  root@newedu:~/sonar# kubectl get secret  sonarqube -o jsonpath="{.data.sonarqube-password}" | base64 -d
+  agLMkOCVqv
+  ```  
+
+<br/>
+
+
+<img src="./assets/sonarqube1.png" style="width: 80%; height: auto;"> 
+
+<br/>
+
+
+####  SonarQube 로 프로젝트 구성
+
+
+<br/>
+
+참고
+- https://docs.sonarqube.org/9.8/analyzing-source-code/scanners/sonarscanner-for-maven/
+- https://twofootdog.tistory.com/15
+- https://happy-jjang-a.tistory.com/26
+
+<br/>
+
+SonarQube에 로그인 한 후에 제일 먼저 Admin 비밀빌번호를 변경한다.  
+Account ->  My Account 클릭한 후 security tab으로 이동한다.  
+
+<img src="./assets/sonarqube_token1.png" style="width: 60%; height: auto;"> 
+
+<br/>
+
+비밀번호를 변경한다.  
+
+<img src="./assets/sonarqube3.png" style="width: 80%; height: auto;"> 
+
+<br/>
+
+프로젝트를 생성한다.  manual 로 만든다.
+
+<img src="./assets/sonarqube4.png" style="width: 80%; height: auto;"> 
+
+
+<br/>
+
+원하는 이름을 넣고 branch에는 master를 입력한다.
+
+<img src="./assets/sonarqube5.png" style="width: 80%; height: auto;"> 
+
+
+<br/>
+
+그 다음 with Jenkins를 클릭하여 필요한 정보를 확인한다.  설정은 별도로 안해도 된다.  
+
+<img src="./assets/sonarqube6.png" style="width: 80%; height: auto;"> 
+
+
+<br/><br/>
+
+Jenkins와 연동하기 위해서는 Token 값을 생성해야 합니다.  
+계정으로 이동합니다.
+
+<img src="./assets/sonarqube_token1.png" style="width: 80%; height: auto;"> 
+
+<br/>
+
+security 탭으로 이동합니다.  
+
+<img src="./assets/sonarqube_token2.png" style="width: 80%; height: auto;"> 
+
+<br/>
+
+Type은 Project Analysys Token 으로 설정하고 Generate 버튼을 클릭합니다. 
+
+<img src="./assets/sonarqube_token3.png" style="width: 80%; height: auto;"> 
+
+
+<br/>
+
+생성된 Token 값을 COPY 버튼을 클릭하여 복사하여 적당하 곳에 저장합니다.  
+
+<img src="./assets/sonarqube_token4.png" style="width: 80%; height: auto;"> 
+
+<br/>
+
+
+SonarQube 프로젝트를 구성하기 위해서는 backend 인 SpringBoot의 pom.xml 화일에 dependency를 추가 한다.  
+
+
+```xml
+		<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>3.7.0.1746</version>
+		</plugin>
+``` 
+
+<br/>
+
+이제 jenkins를 설정합니다.  
+
+Jenkins는 먼저  SonarQube plugins 을 설치합니다.   
+- Sonarqube Scanner
+- Sonar Quality Gates
+
+<img src="./assets/sonarqube_jenkins1.png" style="width: 80%; height: auto;"> 
+
+
+<br/>
+
+Manage Jenkins -> Configure System 으로 이동하여 SonarQube 서버 설정을 합니다.  
+
+<img src="./assets/sonarqube_jenkins2.png" style="width: 80%; height: auto;"> 
+
+
+<br/>
+
+Add Credential 을 추가 하는데 Secret Text로 설정하여 SonarQube Token 값을 설정 합니다.  
+
+<img src="./assets/sonarqube_jenkins3.png" style="width: 80%; height: auto;"> 
+
+
+<br/>
+
+설정한 정보가 맞는지 확인 하고 save 합니다. 
+
+<img src="./assets/sonarqube_jenkins4.png" style="width: 80%; height: auto;">
+
+<br/>
+
+Manage Jenkins -> Global Tool Configuration 이동하여 Sonar Scanner 설정을 합니다.  
+
+<img src="./assets/sonarqube_jenkins7.png" style="width: 80%; height: auto;"> 
+
+<br/>
+
+이제 설정이 완료 되었음으로 Dashboard -> New Item 으로 이동하여 새로운 Pipeline을 생성합니다.  edu-backend pipeline을 복사하여 생성하며 jenkins 화일 이름만 변경 합니다.  
+
+<br/>
+ 
+Build with paramameter를 클릭하여 실행을 하고 console Output 을 확인합니다.   
+
+아래와 같은 메시지가 나오면 연동이 성공 한 것입니다.  
+
+
+```bash
+Downloaded from central: https://repo.maven.apache.org/maven2/org/sonarsource/scanner/api/sonar-scanner-api/2.14.0.2002/sonar-scanner-api-2.14.0.2002.jar (625 kB at 42 MB/s)
+Downloaded from central: https://repo.maven.apache.org/maven2/org/sonatype/plexus/plexus-sec-dispatcher/1.4/plexus-sec-dispatcher-1.4.jar (28 kB at 792 kB/s)
+[INFO] User cache: /root/.sonar/cache
+[INFO] SonarQube version: 9.9.0.65466
+[INFO] Default locale: "en_US", source code encoding: "UTF-8"
+[INFO] Load global settings
+[INFO] Load global settings (done) | time=126ms
+[INFO] Server id: 296AEF55-AYcgz2EaLi3MhYbotBq5
+[INFO] User cache: /root/.sonar/cache
+[INFO] Load/download plugins
+[INFO] Load plugins index
+[INFO] Load plugins index (done) | time=67ms
+[INFO] Load/download plugins (done) | time=1142ms
+[INFO] Process project properties
+[INFO] Process project properties (done) | time=10ms
+[INFO] Execute project builders
+[INFO] Execute project builders (done) | time=2ms
+[INFO] Project key: edu
+[INFO] Base dir: /home/jenkins/agent/workspace/edu_backend_sonar
+[INFO] Working dir: /home/jenkins/agent/workspace/edu_backend_sonar/target/sonar
+[INFO] Load project settings for component key: 'edu'
+[INFO] Load project settings for component key: 'edu' (done) | time=26ms
+[INFO] Auto-configuring with CI 'Jenkins'
+[INFO] Load quality profiles
+[INFO] Load quality profiles (done) | time=69ms
+[INFO] Load active rules
+[INFO] Load active rules (done) | time=1556ms
+[INFO] Load analysis cache
+[INFO] Load analysis cache (404) | time=9ms
+[INFO] Load project repositories
+[INFO] Load project repositories (done) | time=22ms
+[INFO] Indexing files...
+[INFO] Project configuration:
+[INFO] 25 files indexed
+[INFO] 0 files ignored because of scm ignore settings
+[INFO] Quality profile for java: Sonar way
+[INFO] Quality profile for xml: Sonar way
+[INFO] ------------- Run sensors on module thirdproject
+[INFO] Load metrics repository
+[INFO] Load metrics repository (done) | time=20ms
+[INFO] Sensor JavaSensor [java]
+[INFO] Configured Java source version (sonar.java.source): 17
+[INFO] JavaClasspath initialization
+[INFO] JavaClasspath initialization (done) | time=6ms
+[INFO] JavaTestClasspath initialization
+[INFO] JavaTestClasspath initialization (done) | time=3ms
+[INFO] Server-side caching is enabled. The Java analyzer will not try to leverage data from a previous analysis.
+[INFO] Using ECJ batch to parse 22 Main java source files with batch size 189 KB.
+[INFO] Starting batch processing.
+[INFO] The Java analyzer cannot skip unchanged files in this context. A full analysis is performed for all files.
+[INFO] 100% analyzed
+[INFO] Batch processing: Done.
+[INFO] Did not optimize analysis for any files, performed a full analysis for all 22 files.
+[WARNING] Use of preview features have been detected during analysis. Enable DEBUG mode to see them.
+[INFO] Using ECJ batch to parse 2 Test java source files with batch size 189 KB.
+[INFO] Starting batch processing.
+[INFO] 100% analyzed
+[INFO] Batch processing: Done.
+[INFO] Did not optimize analysis for any files, performed a full analysis for all 2 files.
+[INFO] No "Generated" source files to scan.
+[INFO] Sensor JavaSensor [java] (done) | time=2181ms
+[INFO] Sensor JaCoCo XML Report Importer [jacoco]
+[INFO] 'sonar.coverage.jacoco.xmlReportPaths' is not defined. Using default locations: target/site/jacoco/jacoco.xml,target/site/jacoco-it/jacoco.xml,build/reports/jacoco/test/jacocoTestReport.xml
+[INFO] No report imported, no coverage information will be imported by JaCoCo XML Report Importer
+[INFO] Sensor JaCoCo XML Report Importer [jacoco] (done) | time=2ms
+[INFO] Sensor CSS Rules [javascript]
+[INFO] No CSS, PHP, HTML or VueJS files are found in the project. CSS analysis is skipped.
+[INFO] Sensor CSS Rules [javascript] (done) | time=0ms
+[INFO] Sensor C# Project Type Information [csharp]
+[INFO] Sensor C# Project Type Information [csharp] (done) | time=1ms
+[INFO] Sensor C# Analysis Log [csharp]
+[INFO] Sensor C# Analysis Log [csharp] (done) | time=11ms
+[INFO] Sensor C# Properties [csharp]
+[INFO] Sensor C# Properties [csharp] (done) | time=0ms
+[INFO] Sensor SurefireSensor [java]
+[INFO] parsing [/home/jenkins/agent/workspace/edu_backend_sonar/target/surefire-reports]
+[INFO] Sensor SurefireSensor [java] (done) | time=55ms
+[INFO] Sensor HTML [web]
+[INFO] Sensor HTML [web] (done) | time=2ms
+[INFO] Sensor XML Sensor [xml]
+[INFO] 1 source file to be analyzed
+[INFO] 1/1 source file has been analyzed
+[INFO] Sensor XML Sensor [xml] (done) | time=217ms
+[INFO] Sensor TextAndSecretsSensor [text]
+[INFO] 25 source files to be analyzed
+[INFO] 25/25 source files have been analyzed
+[INFO] Sensor TextAndSecretsSensor [text] (done) | time=42ms
+[INFO] Sensor VB.NET Project Type Information [vbnet]
+[INFO] Sensor VB.NET Project Type Information [vbnet] (done) | time=1ms
+[INFO] Sensor VB.NET Analysis Log [vbnet]
+[INFO] Sensor VB.NET Analysis Log [vbnet] (done) | time=11ms
+[INFO] Sensor VB.NET Properties [vbnet]
+[INFO] Sensor VB.NET Properties [vbnet] (done) | time=0ms
+[INFO] Sensor IaC Docker Sensor [iac]
+[INFO] 0 source files to be analyzed
+[INFO] 0/0 source files have been analyzed
+[INFO] Sensor IaC Docker Sensor [iac] (done) | time=47ms
+[INFO] ------------- Run sensors on project
+[INFO] Sensor Analysis Warnings import [csharp]
+[INFO] Sensor Analysis Warnings import [csharp] (done) | time=0ms
+[INFO] Sensor Zero Coverage Sensor
+[INFO] Sensor Zero Coverage Sensor (done) | time=9ms
+[INFO] Sensor Java CPD Block Indexer
+[INFO] Sensor Java CPD Block Indexer (done) | time=46ms
+[INFO] SCM Publisher SCM provider for this project is: git
+[INFO] SCM Publisher 25 source files to be analyzed
+[INFO] SCM Publisher 25/25 source files have been analyzed (done) | time=322ms
+[INFO] CPD Executor 10 files had no CPD blocks
+[INFO] CPD Executor Calculating CPD for 12 files
+[INFO] CPD Executor CPD calculation finished (done) | time=7ms
+[INFO] Analysis report generated in 50ms, dir size=217.6 kB
+[INFO] Analysis report compressed in 34ms, zip size=79.5 kB
+[INFO] Analysis report uploaded in 53ms
+[INFO] ANALYSIS SUCCESSFUL, you can find the results at: http://211.34.231.84:30262/dashboard?id=edu
+[INFO] Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report
+[INFO] More about the report processing at http://211.34.231.84:30262/api/ce/task?id=AYchJdLGw_Vp_k2kP2ZW
+[INFO] Analysis total time: 7.425 s
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  51.927 s
+[INFO] Finished at: 2023-03-27T12:38:59+09:00
+[INFO] ------------------------------------------------------------------------
+```  
+
+
+<br/>
+
+SonarQube로 이동하여 데이터를 확인해 봅니다.    
+Thirdproject 라는 이름으로 하나가 생성된 것을 볼수 있습니다.  
+
+
+<img src="./assets/sonarqube_jenkins6.png" style="width: 80%; height: auto;"> 
+
+<br/>
+
+프로젝트를 클릭하여 좀 더 자세한 정보를 볼 수 있습니다.  
+
+<img src="./assets/sonarqube_jenkins5.png" style="width: 80%; height: auto;">  
+
+
+<br/>
+
+Jenkins Pipeline은 아래와 같습니다.   
+기존 backend pipeline 에 SonarQube가 추가가 되었습니다. 
+
+<br/>
+
+```bash
+        ...
+        stage('SonarQube Analysis') {
+           container('build-tools') {
+               withSonarQubeEnv('sonarqube'){ // 시스템설정 값
+                 sh "./mvnw clean verify sonar:sonar -Dsonar.projectKey=edu"
+             }
+           }  
+        }
+        ...
+```  
+
+<br/>
+
+전체 Pipeline 입니다.
+
+<br/>
+
+```bash
+def label = "agent-${UUID.randomUUID().toString()}"
+def gitBranch = 'master'
+def docker_registry = "ghcr.io"  
+def imageName = "ghcr.io/shclub/edu12-backend"
+def fromImage = "ghcr.io/shclub/jre17-runtime:v1.0.0"
+def git_ops_name = "edu12-backend-gitops"
+def P_NAMESPACE = "edu30"
+
+def TAG = getTag(gitBranch)
+
+podTemplate(label: label, serviceAccount: 'jenkins-admin', namespace: P_NAMESPACE,
+    containers: [
+        containerTemplate(name: 'build-tools', image: 'ghcr.io/shclub/build-tool:v1.0.0', ttyEnabled: true, command: 'cat', privileged: true, alwaysPullImage: true)
+        ,containerTemplate(name: 'jnlp', image: 'ghcr.io/shclub/jenkins/jnlp-slave:latest-jdk11', args: '${computer.jnlpmac} ${computer.name}')
+    ],
+    volumes: [
+        hostPathVolume(hostPath: '/etc/containers' , mountPath: '/var/lib/containers' ),
+        persistentVolumeClaim(mountPath: '/var/jenkins_home', claimName: 'jenkins-edu-slave-pvc',readOnly: false)
+        ]){    
+  
+    
+    node(label) { 
+        stage('SCM') {
+           checkout scm
+       }  
+       
+        stage('SonarQube Analysis') {
+           container('build-tools') {
+               withSonarQubeEnv('sonarqube'){ // 시스템설정 값
+                 sh "./mvnw clean verify sonar:sonar -Dsonar.projectKey=edu"
+             }
+           }  
+        }
+        
+       stage('Maven Build & Image Push ') {
+            container('build-tools') {
+               withCredentials([usernamePassword(credentialsId: 'github_ci',usernameVariable: 'USERNAME',passwordVariable: 'PASSWORD')]) {
+                    sh  """
+                         ./mvnw clean package jib:build  -Dmaven.test.skip=true  \
+                         -Djib.from.image=${fromImage} \
+                         -Djib.from.auth.username=${USERNAME} \
+                         -Djib.from.auth.password=${PASSWORD} \
+                         -Djib.to.image=${imageName} \
+                         -Djib.to.tags=${TAG}  \
+                         -Djib.to.auth.username=${USERNAME} \
+                         -Djib.to.auth.password=${PASSWORD}
+                         echo 'TAG ==========> ' ${TAG}
+                   """
+              }
+            }
+        }
+
+        stage('GitOps update') {
+            container('build-tools') {
+               withCredentials([usernamePassword(credentialsId: 'github_ci',usernameVariable: 'USERNAME',passwordVariable: 'PASSWORD')]) {
+                    sh """  
+                        cd ~
+                        git clone https://${USERNAME}:${PASSWORD}@github.com/${USERNAME}/${git_ops_name}
+                        cd ${git_ops_name}
+                        git checkout HEAD
+                        kustomize edit set image ${imageName}:${TAG}
+                        git config --global user.email "shclub@gmail.com"
+                        git config --global user.name ${USERNAME}
+                        git add .
+                        git commit -am 'update image tag  ${TAG} from My_Jenkins'
+                        cat kustomization.yaml
+                        git push origin HEAD
+                    """
+               } 
+            }
+        }
+        
+        
+    }
+}
+
+def getTag(branchName){     
+    def TAG
+    def DATETIME_TAG = new Date().format('yyyyMMddHHmmss')
+    TAG = "${DATETIME_TAG}"
+    return TAG
+}  
+```
