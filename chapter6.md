@@ -1051,7 +1051,7 @@ TAG가 빌드 시간 입니다.
 <br/>
 
 이제 ArgoCD 에 배포를 진행 하도록 합니다.  
-Dependency 때문에 ( Nginx ) backend 를 먼저 배포 합니다.
+Dependency 때문에  backend 를 먼저 배포 합니다.
 
 <br/>
 
