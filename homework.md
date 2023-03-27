@@ -922,6 +922,148 @@ root@newedu:~# cd sonar
 
 <br/>
 
+#### Storage 설정
+
+<br/>
+
+
+PostgreSQL 과 SonarQube 가 사용하는 stroage를 위해 pv / pvc 를 생성해야 하며
+사전에 NFS 에 접속하여 폴더를 생성한다. 
+
+
+<br/>
+
+postgresql 은 아래 폴더에 생성되어 있고 수강생은 본인의 폴더 직접 생성.
+
+<br/>
+
+```bash
+[root@edu postgre]# pwd
+/mnt/postgre
+[root@edu postgre]# mkdir -p edu
+```
+
+<br/>
+
+SonarQube 용 폴더도 생성한다.
+
+```bash
+[root@edu sonar]# pwd
+/mnt/sonar
+[root@edu sonar]# mkdir -p edu
+...
+```
+
+<br/>
+
+postgresql / SonarQube 용 해당 폴더의 권한을 설정한다.
+
+<br/>
+
+```bash
+[root@edu postgre]# chown -R nfsnobody:nfsnobody edu
+[root@edu postgre]# chmod 777 edu
+[root@edu sonar]# chown -R nfsnobody:nfsnobody edu
+[root@edu sonar]# chmod 777 edu
+```  
+
+
+<br/>
+
+postgresql 용 PV 를 생성한다. 사이즈는 5G로 설정한다.
+
+<br/>
+
+```bash  
+root@newedu:~/sonar#  vi postgre_pv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgre-edu-pv
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 5Gi
+  nfs:
+    path: /share_8c0fade2_649f_4ca5_aeaa_8fd57904f8d5/postgre/edu
+    server: 172.25.1.162
+  persistentVolumeReclaimPolicy: Retain
+```
+
+<br/>
+
+PV를 생성하고 Status를 확인해보면 Available 로 되어 있는 것을 알 수 있습니다.  
+
+<br/>
+
+```bash
+root@newedu:~/sonar# kubectl apply -f  postgre_pv.yaml
+```
+
+<br/>
+
+postgresql용  pvc 를 생성합니다. pvc 이름을 기억합니다.
+
+<br/>
+
+TODO
+
+<br/>
+
+
+SonarQube 용 PV 를 생성한다. 사이즈는 5G로 설정한다.
+
+<br/>
+
+```bash  
+root@newedu:~/sonar#  vi sonar_pv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: sonar-edu-pv
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 5Gi
+  nfs:
+    path: /share_8c0fade2_649f_4ca5_aeaa_8fd57904f8d5/sonar/edu
+    server: 172.25.1.162
+  persistentVolumeReclaimPolicy: Retain
+```
+
+<br/>
+
+PV를 생성하고 Status를 확인해보면 Available 로 되어 있는 것을 알 수 있습니다.  
+
+<br/>
+
+```bash
+root@newedu:~/sonar# kubectl apply -f  sonar_pvc.yaml
+```
+
+<br/>
+
+SonarQube 용 pvc 를 생성합니다. pvc 이름을 기억합니다.
+
+<br/>
+
+TODO
+
+<br/>
+
+PVC를 생성할 때는 namespace ( 본인의 namespace ) 를 명시해야 합니다.  
+PVC 생성을 확인 해보고 다시 PV를 확인해 보면 Status가 Bound 로 되어 있는 것을 알 수 있습니다.  이제 PV 와 PVC가 연결이 되었습니다.
+
+<br/>
+
+```bash
+root@newedu:~/sonar# kubectl apply -f sonar_pvc.yaml
+```
+
+<br/>
+
 #### Helm 으로 PostgreSQL 설치
 
 <br/>
@@ -956,10 +1098,7 @@ bitnami/postgresql 차트에서 차트의 변수 값을 변경하기 위해 post
 
 <br/>
 
-
-```bash
-root@newedu:~/sonar#  helm show values bitnami/postgresql  > postgre_values.yaml
-```
+TODO
 
 <br/>
 
@@ -1183,39 +1322,7 @@ root@newedu:~/sonar# oc adm policy add-scc-to-user privileged -z sonarqube
 
 이제 sonarqube 를 설치 합니다.
 
-
-```bash
-root@newedu:~/sonar# helm install sonarqube bitnami/sonarqube -f sonarqube_values.yaml
-NAME: sonarqube
-LAST DEPLOYED: Mon Mar 27 10:51:23 2023
-NAMESPACE: edu30
-STATUS: deployed
-REVISION: 1
-TEST SUITE: None
-NOTES:
-** Please be patient while the chart is being deployed **
-
-Your SonarQube(TM) site can be accessed through the following DNS name from within your cluster:
-
-    sonarqube.edu30.svc.cluster.local (port 80)
-
-To access your SonarQube(TM) site from outside the cluster follow the steps below:
-
-1. Get the SonarQube(TM) URL by running these commands:
-
-  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-        Watch the status with: 'kubectl get svc --namespace edu30 -w sonarqube'
-
-   export SERVICE_IP=$(kubectl get svc --namespace edu30 sonarqube --template "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}")
-   echo "SonarQube(TM) URL: http://$SERVICE_IP/"
-
-2. Open a browser and access SonarQube(TM) using the obtained URL.
-
-3. Login with the following credentials below:
-
-  echo Username: user
-  echo Password: $(kubectl get secret --namespace edu30 sonarqube -o jsonpath="{.data.sonarqube-password}" | base64 -d)
-  ```
+TODO
 
 <br/>
 
@@ -1298,10 +1405,9 @@ sonarqube                     NodePort    172.30.154.233   <none>        80:3026
 
 <br/>
 
-참고
-- https://docs.sonarqube.org/9.8/analyzing-source-code/scanners/sonarscanner-for-maven/
-- https://twofootdog.tistory.com/15
-- https://happy-jjang-a.tistory.com/26
+샘플 SonarQube http://211.34.231.84:30262 접속
+- id : user
+- 비밀번호 : 그동안 많이 사용한 비밀번호
 
 <br/>
 
