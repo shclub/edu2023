@@ -487,9 +487,6 @@ spec:
   host: frontend-edu30.apps.211-34-231-82.nip.io # 수정필요
   port:
     targetPort: 80
-#  tls:
-#    insecureEdgeTerminationPolicy: Redirect
-#    termination: passthrough
   to:
     kind: Service
     name: frontend
@@ -769,6 +766,7 @@ Jenkinsfile_github 화일에 본인의 환경에 맞게 설정합니다.
 
 <br/>
 
+Jenkinsfile_github
 ```bash
 def label = "agent-${UUID.randomUUID().toString()}"
 def gitBranch = 'master'
@@ -850,7 +848,7 @@ def getTag(branchName){
 
 <br/><br/>
 
-이제 jenkins 에서 edu_frontend 라는 이름으로 pipeline 을 구성 하고 빌드를 해봅니다.  
+이제 jenkins 에서 `edu_frontend` 라는 이름으로 pipeline 을 구성 하고 빌드를 해봅니다.  
 
 아래 추가 설정을 확인 합니다.
 
@@ -1092,7 +1090,7 @@ def getTag(branchName){
 
 <br/><br/>
 
-이제 jenkins 에서 edu_backend 라는 이름으로 pipeline 을 구성 하고 빌드를 해봅니다.  
+이제 jenkins 에서 `edu_backend` 라는 이름으로 pipeline 을 구성 하고 빌드를 해봅니다.  
 
 아래 추가 설정을 확인 합니다.
 
