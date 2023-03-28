@@ -110,7 +110,7 @@
 
      - 과제   
           - CKA 문제 풀어 보기 [ 문제 링크 ](./cka.md)       
-          - CKA 전체 문제 : 나중에 풀어보기 [ 문제 링크 ]( https://github.com/shclub/cka ) 
+          - CKA 전체 문제 : 나중에 풀어보기 [ 전체 문제 링크 ]( https://github.com/shclub/cka_question ) 
      
      <br/>
 
