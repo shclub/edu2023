@@ -423,6 +423,7 @@ GitOps를 구현 하기 위해서는 소스와 OPS 를 위한 Repository 가 분
 <br/>
 
 edu12-frontend-gitops 는 아래와 같이 구성 됩니다.  
+본인의 계정으로 수정합니다.  
 
 <br/>
 
@@ -439,7 +440,7 @@ resources:
 - service.yaml
 - route.yaml
 images:
-- name: ghcr.io/shclub/edu12-frontend
+- name: ghcr.io/shclub/edu12-frontend # 수정필요
   newTag: "20230322094306"
 ```  
 
@@ -465,7 +466,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ghcr.io/shclub/edu12-frontend
+        image: ghcr.io/shclub/edu12-frontend # 수정필요
         env:
         - name: BACKEND_API_URL
           value: "http://backend" 
@@ -483,7 +484,7 @@ kind: Route
 metadata:
   name: frontend
 spec:
-  host: frontend-edu30.apps.211-34-231-82.nip.io
+  host: frontend-edu30.apps.211-34-231-82.nip.io # 수정필요
   port:
     targetPort: 80
 #  tls:
@@ -515,7 +516,7 @@ resources:
 - deployment.yaml
 - service.yaml
 images:
-- name: ghcr.io/shclub/edu12-backend
+- name: ghcr.io/shclub/edu12-backend # 수정필요
   newTag: "20230322092639"
 ```  
 
@@ -535,11 +536,41 @@ my-release-mariadb   ClusterIP   172.30.8.131     <none>        3306/TCP        
 
 <br/>
 
-예제를 정상적으로 진행 되기 위해서는 mariaDB에 접속하여 edu DB에
+예제를 정상적으로 진행 되기 위해서는 mariaDB pod 에 접속하여 edu DB에
 아래와 같이 sequence와 table을 생성하고 데이터 1건을 insert 한다.   
 
+<br/>
 
 ```bash
+root@newedu:~# kubectl exec -it helm-db-mariadb-0 sh
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+$ mysql -u edu -p
+Enter password:
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 221690
+Server version: 10.6.9-MariaDB Source distribution
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> use edu
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+
+MariaDB [edu]>
+```
+
+<br/>
+
+sequence 및 table 생성.
+
+<br/>
+
+```bash
+
 create sequence hibernate_sequence;     
 
 create table EMPLOYEE (id int primary key,empName varchar(255),empDeptName varchar(255),empTelNo varchar(20),empMail  varchar(25));
@@ -547,7 +578,28 @@ create table EMPLOYEE (id int primary key,empName varchar(255),empDeptName varch
 insert into EMPLOYEE  values(1,'1','1','1','1');  
 
 SELECT NEXTVAL(hibernate_sequence);
+```
+
+<br/>
+
+
+생성된 것을 확인합니다.  
+
+<br/>
+
+
+```bash
+
+MariaDB [edu]> show tables;
++--------------------+
+| Tables_in_edu      |
++--------------------+
+| EMPLOYEE           |
+| hibernate_sequence |
++--------------------+
+2 rows in set (0.001 sec)
 ```  
+  
 
 <br/>
 
@@ -574,16 +626,16 @@ spec:
     spec:
       containers:
       - name: backend
-        image: ghcr.io/shclub/edu12-backend 
+        image: ghcr.io/shclub/edu12-backend # 수정필요
         env:
         - name: SPRING_PROFILES_ACTIVE
           value: "prd"
         - name: SPRING_DATASOURCE_USERNAME
-          value: "edu"
+          value: "edu"  # 수정필요
         - name: SPRING_DATASOURCE_PASSWORD
-          value: "edu1234"
+          value: "edu1234"  #수정필요
         - name: SPRING_DATASOURCE_URL
-          value: "jdbc:mariadb://my-release-mariadb:3306/edu"
+          value: "jdbc:mariadb://my-release-mariadb:3306/edu" # 수정필요
         ports:
         - containerPort: 8080
 ```
@@ -653,7 +705,7 @@ nginx.conf 화일에 backend 호출을 위해
 #
 # Build stage
 #
-FROM ghcr.io/shclub/node:14.19.3-alpine as build
+FROM ghcr.io/shclub/node:14.19.3-alpine as build  # 수정 필요
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 COPY package.json ./
@@ -721,9 +773,17 @@ Jenkinsfile_github 화일에 본인의 환경에 맞게 설정합니다.
 def label = "agent-${UUID.randomUUID().toString()}"
 def gitBranch = 'master'
 def docker_registry = "ghcr.io"  
+
+// 본인 이미지 사용
 def imageName = "ghcr.io/shclub/edu12-frontend"
 def git_ops_name = "edu12-frontend-gitops"
+// 본인 Namespace
 def P_NAMESPACE = "edu30"
+// 본인 slave pvc
+def P_SLAVE_PVC = "jenkins-edu-slave-pvc"
+// 본인 이메일
+def P_EMAIL = "shclub@gmail.com"
+
 
 def TAG = getTag(gitBranch)
 
@@ -734,16 +794,16 @@ podTemplate(label: label, serviceAccount: 'jenkins-admin', namespace: P_NAMESPAC
     ],
     volumes: [
         hostPathVolume(hostPath: '/etc/containers' , mountPath: '/var/lib/containers' ),
-        persistentVolumeClaim(mountPath: '/var/jenkins_home', claimName: 'jenkins-edu-slave-pvc',readOnly: false)
+        persistentVolumeClaim(mountPath: '/var/jenkins_home', claimName: P_SLAVE_PVC,readOnly: false)
         ]){    
       
     node(label) {
-       stage('Clone Git Project') {
-            sh "pwd"
-            echo 'Clone'
-            git branch: 'master', credentialsId: 'github_ci', url: 'https://github.com/shclub/edu12-3.git'
-            sh "ls"
-        }
+        
+      stage('Clone Git Project') {
+          script{
+             checkout scm
+          }
+       } 
                      
       stage('Podman Build & Image Push ') {
               container('podman') {
@@ -754,7 +814,6 @@ podTemplate(label: label, serviceAccount: 'jenkins-admin', namespace: P_NAMESPAC
                      podman push ${imageName}:${TAG} --tls-verify=false
                      echo 'TAG ==========> ' ${TAG}
                      """
-
                   }
               }
         }
@@ -768,7 +827,7 @@ podTemplate(label: label, serviceAccount: 'jenkins-admin', namespace: P_NAMESPAC
                         cd ${git_ops_name}
                         git checkout HEAD
                         kustomize edit set image ${imageName}:${TAG}
-                        git config --global user.email "shclub@gmail.com"
+                        git config --global user.email ${P_EMAIL}
                         git config --global user.name ${USERNAME}
                         git add .
                         git commit -am 'update image tag  ${TAG} from My_Jenkins'
@@ -778,7 +837,6 @@ podTemplate(label: label, serviceAccount: 'jenkins-admin', namespace: P_NAMESPAC
                } 
             }
         }
-
     }
 }
 
@@ -801,7 +859,7 @@ def getTag(branchName){
 - 처음 push 할때 기본값이 private 임으로 public 으로 변경 해야 합니다.
     - 해당 패키지 선택 후 오른쪽에 package settings 선택    
       <img src="./assets/3tier_package1.png" style="width: 80%; height: auto;"/>  
-    - 하단에 Danger Zone 이동하여 Change Visibility 클릭하고 가이드에 따라 public으로 변경. 1회만 변경하면 됨    
+    - 하단에 Danger Zone 이동하여 Change Visibility 클릭하고 가이드에 따라 public으로 변경 ( 패키지 이름 입력 ). 1회만 변경하면 됨    
       <img src="./assets/3tier_package2.png" style="width: 80%; height: auto;"/>   
 
 <br/>
@@ -862,7 +920,7 @@ SpringBoot 도커라이징은 2가지 방법이 있습니다.
 #
 # Maven Wrapper Build
 
-FROM ghcr.io/shclub/openjdk:17-alpine AS MAVEN_BUILD
+FROM ghcr.io/shclub/openjdk:17-alpine AS MAVEN_BUILD  # 수정 필요
 
 RUN mkdir -p build
 WORKDIR /build
@@ -949,10 +1007,18 @@ Jenkinsfile_github 화일에 본인의 환경에 맞게 설정합니다.
 def label = "agent-${UUID.randomUUID().toString()}"
 def gitBranch = 'master'
 def docker_registry = "ghcr.io"  
+
+// 본인 이미지 사용
 def imageName = "ghcr.io/shclub/edu12-backend"
 def fromImage = "ghcr.io/shclub/jre17-runtime:v1.0.0"
 def git_ops_name = "edu12-backend-gitops"
+// 본인 Namespace
 def P_NAMESPACE = "edu30"
+// 본인 slave pvc
+def P_SLAVE_PVC = "jenkins-edu-slave-pvc"
+// 본인 이메일
+def P_EMAIL = "shclub@gmail.com"
+
 
 def TAG = getTag(gitBranch)
 
@@ -963,18 +1029,19 @@ podTemplate(label: label, serviceAccount: 'jenkins-admin', namespace: P_NAMESPAC
     ],
     volumes: [
         hostPathVolume(hostPath: '/etc/containers' , mountPath: '/var/lib/containers' ),
-        persistentVolumeClaim(mountPath: '/var/jenkins_home', claimName: 'jenkins-edu-slave-pvc',readOnly: false)
+        persistentVolumeClaim(mountPath: '/var/jenkins_home', claimName: P_SLAVE_PVC,readOnly: false)
         ]){    
-    
+      
     node(label) {
-       stage('Clone Git Project') {
-            sh "pwd"
-            echo 'Clone'
-            git branch: 'master', credentialsId: 'github_ci', url: 'https://github.com/shclub/edu12-4.git'
-            sh "ls"
-        }
+    
+      stage('Clone Git Project') {
+          script{
+             checkout scm
+          }
+      }
+      
                      
-      stage('Maven/Jib Build & Image Push ') {
+      stage('Maven Build & Image Push ') {
             container('build-tools') {
                withCredentials([usernamePassword(credentialsId: 'github_ci',usernameVariable: 'USERNAME',passwordVariable: 'PASSWORD')]) {
                     sh  """
@@ -1001,7 +1068,7 @@ podTemplate(label: label, serviceAccount: 'jenkins-admin', namespace: P_NAMESPAC
                         cd ${git_ops_name}
                         git checkout HEAD
                         kustomize edit set image ${imageName}:${TAG}
-                        git config --global user.email "shclub@gmail.com"
+                        git config --global user.email ${P_EMAIL}
                         git config --global user.name ${USERNAME}
                         git add .
                         git commit -am 'update image tag  ${TAG} from My_Jenkins'
@@ -1034,17 +1101,18 @@ def getTag(branchName){
 - 처음 push 할때 기본값이 private 임으로 public 으로 변경 해야 합니다.
     - 해당 패키지 선택 후 오른쪽에 package settings 선택    
       <img src="./assets/3tier_package1.png" style="width: 80%; height: auto;"/>  
-    - 하단에 Danger Zone 이동하여 Change Visibility 클릭하고 가이드에 따라 public으로 변경. 1회만 변경하면 됨    
+    - 하단에 Danger Zone 이동하여 Change Visibility 클릭하고 가이드에 따라 public으로 변경 ( 패키지 이름 입력 ). 1회만 변경하면 됨    
       <img src="./assets/3tier_package2.png" style="width: 80%; height: auto;"/>   
 
 <br/>
 
 Github에서 package 가 생성되었는지 확인합니다.  
-TAG가 빌드 시간 입니다.  
+TAG 가 빌드 시간 입니다.  
 
 <img src="./assets/3tier_gitops4.png" style="width: 60%; height: auto;"/>
 
-<br/>
+<br/><br/>
+
 
 ### ArgoCD 배포
 
