@@ -16,6 +16,8 @@
     - 언어별 (React/SpringBoot) CI Pipeline 구성 및 빌드 (/W CORS) 
     - ArgoCD 배포
 
+4. React/SpringBoot/MariaDB 3-tier 구조 한번에 배포 하기
+    - ArgoCD Apps-of-Apps 패턴 
 
 <br/>
 
@@ -1207,6 +1209,12 @@ Syncronize 버튼을 클릭하여 Application 생성을 완료 한다.
 
 <br/>
 
+Frontend 와 Backend 배포 2개가 완료가 되어야 한다.  
+
+<img src="./assets/3tier_argo7.png" style="width: 60%; height: auto;"/>
+
+<br/>
+
 에러 없이 정상적으로 배포가 되었으면 route와 service가 잘 구성 되었는지 확인한다.  
 모두 80 포트가 있어야 한다.  
 
@@ -1223,7 +1231,6 @@ jenkins    jenkins-edu30.apps.211-34-231-82.nip.io           jenkins    http   e
 root@newedu:~# kubectl get svc
 NAME             TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
 backend          NodePort    172.30.135.131   <none>        80:31198/TCP     38m
-clusterip1       ClusterIP   172.30.19.95     <none>        80/TCP           6d13h
 frontend         ClusterIP   172.30.139.233   <none>        80/TCP           4m5s
 jenkins          NodePort    172.30.247.178   <none>        8080:30332/TCP   10d
 jenkins-agent    ClusterIP   172.30.140.40    <none>        50000/TCP        10d
@@ -1241,3 +1248,635 @@ jenkins-agent    ClusterIP   172.30.140.40    <none>        50000/TCP        10d
 데이터가 조회 되면 생성 / 수정이 가능하다.
 
 <img src="./assets/3tier_e2e_test2.png" style="width: 80%; height: auto;"/>
+ 
+<br/>
+
+Chrome 에서 More Tools -> Developer Tools -> Console 메뉴에서 보면 JWT 토큰이 생성이 되어 통신하는 것을 확인 할 수 있다.  
+
+<img src="./assets/3tier_e2e_test3.png" style="width: 80%; height: auto;"/>
+ 
+<br/>
+
+##  React/SpringBoot/MariaDB 3-tier 구조 한번에 배포 하기
+
+<br/>
+
+지금까지는 DB 와 Backend 그리고 Frontend를 별도로 배포하는 방식을 사용을 하였습니다.  
+
+이제 3개의 모듈을 한번에 배포하는 예제를 테스트 하도록 하겠습니다.  
+
+<br/>
+
+먼저 Argocd의 Frontend/Backend Application을 삭제 합니다.    
+
+<br/>
+
+프로젝트를 선택후 X 버튼을 클릭합니다.  
+
+<img src="./assets/argocd_delete1.png" style="width: 60%; height: auto;"/>
+
+<br/>
+
+Application 이름을 입력하고 OK 버튼은 클릭하면 삭제가 완료 됩니다.  
+
+<img src="./assets/argocd_delete2.png" style="width: 60%; height: auto;"/>
+ 
+
+<br/>
+
+그리고 Helm 으로 설치한 MariaDB도 삭제 합니다.    
+
+먼저 `helm list` 명령으로 helm 배포 이름을 확인 합니다.  
+
+```bash
+root@newedu:~# helm list
+NAME      	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART         	APP VERSION
+jenkins   	edu1     	1       	2023-03-26 05:17:45.605297804 +0000 UTC	deployed	jenkins-4.3.9 	2.387.1
+my-release	edu1     	1       	2023-03-20 06:47:14.793760159 +0000 UTC	failed  	mariadb-11.5.4	10.6.12
+```
+
+<br/>
+
+`my-release` 라는 이름으로 설치된 mariadb를 삭제.
+
+```bash
+root@newedu:~# helm delete my-release
+```
+
+<br/>
+
+### ArgoCD Apps-of-Apps 패턴
+
+<br/>
+
+참고 
+- https://jenakim47.tistory.com/75
+- https://malwareanalysis.tistory.com/478
+
+
+<br/>
+
+ArgoCD application을 모아서 관리하는 패턴을 app of apps 패턴이라고 합니다. app of app패턴으로 구성된 application을 sync하면 여러 argoCD application을 생성합니다.  
+
+하나의 폴더에 child application 을 생성하도록 하는 App of Apps 패턴을 사용하게 되면 배포 및 구성할 수 있는 apps 들을 선언적으로 관리 할 수 있습니다.  
+
+- https://argo-cd.readthedocs.io/en/stable/operator-manual/cluster-bootstrapping/
+
+
+<br/><br/>
+
+App-of-Apps 패턴은 Helm 구조로 구성이 됩니다.    
+
+<br/>
+
+우리는 https://github.com/shclub/edu14-2 repository를 예제로 사용을 합니다.    
+
+fork를 하여 서버에 복사를 먼저 하고 본인의 VM 에 git clone 명령어를  사용하여 다운받습니다.  
+
+<br/>
+
+```bash
+root@newedu:~/# git clone https://github.com/shclub/edu14-2.git
+root@newedu:~# cd edu14-2
+root@newedu:~/edu14-2# tree
+```
+
+<br/>
+
+```bash
+├── application.yaml
+├── apps
+│   ├── frontend.yaml
+│   ├── helm-db.yaml
+│   └── kustomize-backend.yaml
+├── charts
+│   ├── backend
+│   │   ├── backend-deployment.yaml
+│   │   ├── backend-svc.yaml
+│   │   └── kustomization.yaml
+│   ├── frontend
+│   │   └── manifest.yaml
+│   └── helm-db
+│       ├── Chart.lock
+│       ├── Chart.yaml
+│       ├── README.md
+│       ├── charts
+│       │   └── common
+│       │       ├── Chart.yaml
+│       │       ├── README.md
+│       │       ├── templates
+│       │       └── values.yaml
+│       ├── schema.sql
+│       ├── templates
+│       ├── values.schema.json
+│       └── values.yaml
+```  
+
+<br/>
+
+구조를 보면 Main Application 화일 인 application.yaml 이 있고
+apps 폴더 안에 3개의 폴더가 있습니다.   
+
+- frontend.yaml : React Frontend 관련 yaml ( manifest로 배포 )
+- helm-db.yaml : Helm 방식으로 mariaDB 설치. pv/pvc 없이 Dynamic Provisioning으로 설치
+- kustomize-backend.yaml : Kustomize로 SpringBoot Backend 배포 
+
+
+<br/>
+
+application.yaml 화일은 다음과 같고 본인의 namespace 에 맞게 수정이되어야 합니다.
+단 배포를 위한 namespace는 argocd 이어야 합니다.    
+
+이미 다운 받은 화일을 변경하면 됩니다.  
+
+<br/>
+
+application.yaml  
+
+```bash
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: edu31-apps  # 이름 변경 필요 
+  namespace: argocd # 수정하지 말것. argocd 유지
+  # Add a this finalizer ONLY if you want these to cascade delete.
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+
+spec:
+
+  project: edu31  # # argocd 프로젝트 이름으로 변경.
+  
+  source:
+    repoURL: https://github.com/shclub/edu14-2.git # 본인의 git 주소
+    targetRevision: HEAD
+    path: apps # child Application 폴더 위치
+  
+  destination:
+    server: https://kubernetes.default.svc
+    # The namespace will only be set for namespace-scoped resources that have not set a value for .metadata.namespace
+    namespace: edu31  #  본인의 namespace로 변경
+  
+  syncPolicy:
+    automated: 
+      prune: true 
+      selfHeal: true   
+    # Namespace Auto-Creation ensures that namespace specified as the application destination exists in the destination cluster.  
+    syncOptions:
+      - CreateNamespace=false 
+```
+
+<br/>
+
+apps 폴더 아래에 있는 Child Application 3개 yaml 화일에서 사용자의 환경에 맞게 변경합니다.      
+
+<br/>
+
+이미 다운 받은 화일을 변경하면 됩니다.    
+
+> apps 폴더는 아래와 같다.  
+
+<br/>
+
+- frontend.yaml   
+
+  ```bash
+  apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    name: edu31-frontend  # 본인 Namespace로 변경. <namespace>-frontend
+    namespace: argocd # 절대 변경 하지 말것
+    # Add a this finalizer ONLY if you want these to cascade delete.
+    finalizers:
+      - resources-finalizer.argocd.argoproj.io
+
+  spec:
+    project: edu31 # argocd 프로젝트 이름으로 변경
+    
+    source:
+      repoURL: https://github.com/shclub/edu14-2.git # 본인의 git 으로 변경
+      targetRevision: HEAD
+      path: charts/frontend # chart 폴더 아래 frontend 확인
+    
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: edu31 # 본인의 namespace로 변경
+      
+    syncPolicy:
+      automated: 
+        prune: true 
+        selfHeal: true   
+      # Namespace Auto-Creation ensures that namespace specified as the application destination exists in the destination cluster.  
+      syncOptions:
+        - CreateNamespace=false   
+  ```  
+
+  <br/>
+
+
+- helm-db.yaml   
+
+  ```bash
+  apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    name: edu31-helm-db # 본인 Namespace로 변경. <namespace>-helm-db
+    namespace: argocd # 절대 수정 하지 말것
+    # Add a this finalizer ONLY if you want these to cascade delete.
+    finalizers:
+      - resources-finalizer.argocd.argoproj.io
+
+  spec:
+    project: edu31 # argocd 프로젝트 이름
+    
+    source:
+      repoURL: https://github.com/shclub/edu14-2.git # 본인의 git으로 변경
+      targetRevision: HEAD
+      path: charts/helm-db # charts 폴더 밑에 helm-db 확인
+    
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: edu31 # 본인의 namespace로 변경
+    
+    syncPolicy:
+      automated: 
+        prune: true 
+        selfHeal: true   
+      # Namespace Auto-Creation ensures that namespace specified as the application destination exists in the destination cluster.  
+      syncOptions:
+        - CreateNamespace=false      
+  ```  
+
+  <br/>      
+
+- kustomize-backend.yaml   
+
+  ```bash
+  apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    name: edu31-kustomize-backend # 본인 Namespace로 변경. <namespace>-kustomize-backend
+    namespace: argocd  # 절대 수정 하지 말것
+    # Add a this finalizer ONLY if you want these to cascade delete.
+    finalizers:
+      - resources-finalizer.argocd.argoproj.io
+
+  spec:
+    project: edu31 # argocd 프로젝트 이름
+    
+    source:
+      repoURL: https://github.com/shclub/edu14-2.git # 본인의 git으로 변경
+      targetRevision: HEAD
+      path: charts/backend # charts 폴더안에 backend 확인
+    
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: edu31 # 본인의 namespace
+    
+    syncPolicy:
+      automated: 
+        prune: true 
+        selfHeal: true   
+      # Namespace Auto-Creation ensures that namespace specified as the application destination exists in the destination cluster.  
+      syncOptions:
+        - CreateNamespace=false      
+    ```  
+
+  <br/>        
+
+<br/><br/>
+
+charts 폴더 아래에 있는 Child Application 폴더 (frontend,backend,helm-db) 의 yaml 화일에서 사용자의 환경에 맞게 변경합니다.      
+
+<br/>
+
+이미 다운 받은 화일을 변경하면 됩니다.  
+
+> charts 폴더는 아래와 같다.  
+
+<br/>
+
+- frontend/manifest.yaml   
+
+  ```bash
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: frontend
+    labels:
+      app: frontend
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: frontend
+    template:
+      metadata:
+        labels:
+          app: frontend
+      spec:
+        containers:
+        - name: frontend
+          image: ghcr.io/shclub/edu12-3:v10 # 본인의  도커 이미지. 없으면 그대로 사용
+          env:
+          - name: BACKEND_API_URL
+            value: "http://backend" 
+          ports:
+          - containerPort: 80
+  ---
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: frontend
+  spec:
+    selector:
+      app: frontend
+    ports:
+      - protocol: TCP
+        port: 80
+        targetPort: 80
+    type: ClusterIP   
+  ---
+  apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    name: frontend
+  spec:
+    host: frontend-edu31.apps.211-34-231-82.nip.io # 본인의 namespace로 적용
+    port:
+      targetPort: 80
+    to:
+      kind: Service
+      name: frontend
+      weight: 100    
+    wildcardPolicy: None     
+  ```  
+
+<br/>
+
+
+- backend/kustomization.yaml   
+
+  ```bash
+  apiVersion: kustomize.config.k8s.io/v1beta1
+  kind: Kustomization
+  resources:
+  - backend-deployment.yaml
+  - backend-svc.yaml     
+  ```  
+
+  <br/>
+
+- backend/backend-svc.yaml   
+
+  ```bash
+  apiVersion: v1	
+  kind: Service	
+  metadata:	
+    name: backend	
+  spec:	
+    ports:	
+    - port: 80	
+      targetPort: 8080	
+    selector:	
+      app: backend
+    type: NodePort    
+  ```  
+
+  <br/>
+
+- backend/backend-deployment.yaml   
+
+  ```bash
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: backend
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 3
+    selector:
+      matchLabels:
+        app: backend
+    template:
+      metadata:
+        labels:
+          app: backend
+      spec:
+        containers:
+        - name: backend
+          image: ghcr.io/shclub/edu12-4:v10 # 본인의 이미지로 변경. 없으면 해당 이미지 사용
+          #image: shclub/edu12-4:v10
+          env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: "prd"
+          - name: SPRING_DATASOURCE_USERNAME
+            value: "edu"
+          - name: SPRING_DATASOURCE_PASSWORD
+            value: "caravan"
+          - name: SPRING_DATASOURCE_URL
+            value: "jdbc:mariadb://helm-db-mariadb:3306/edu"
+          ports:
+          - containerPort: 8080  
+  ```  
+
+  <br/>
+
+
+helm-db 폴더의 values.yaml을 수정하기 전에 dynamic provisioning의 이름을 알아내기 위해 storageclass를 조회합니다.  
+
+<br/>
+
+```bash
+root@newedu:~/edu14-2/charts/helm-db# kubectl get storageclass
+NAME         PROVISIONER                                     RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+nfs-client   cluster.local/nfs-subdir-external-provisioner   Delete          Immediate           true                   207d
+```   
+
+<br/>
+
+- helm-db/values.yaml   
+
+  ```bash
+    11 global:
+    12   imageRegistry: ""
+    17   imagePullSecrets: []
+    18   storageClass: "nfs-client" # stroage class 기입
+    ...
+    77 image:
+    78   registry: ghcr.io
+    79   repository: shclub/mariadb
+    80   tag: 10.6.9-debian-11-r4 
+    ...
+    100 architecture: standalone
+    101 ## MariaDB Authentication parameters
+    102 ##
+    103 auth:
+    104   ## @param auth.rootPassword Password for the `root` user. Ignored if existing secret is provided.
+    105   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mariadb#setting-the-root-password-on-first-run
+    106   ##
+    107   rootPassword: edu1234 # root 비밀번호 
+    108   ## @param auth.database Name for a custom database to create
+    109   ## ref: https://github.com/bitnami/containers/blob/main/bitnami/mariadb/README.md#creating-a-database-on-first-run
+    110   ##
+    111   database: edu  # DB 이름
+    112   ## @param auth.username Name for a custom user to create
+    113   ## ref: https://github.com/bitnami/containers/blob/main/bitnami/mariadb/README.md#creating-a-database-user-on-first-run
+    114   ##
+    115   username: edu # 사용자 계정
+    116   ## @param auth.password Password for the new user. Ignored if existing secret is provided
+    117   ##
+    118   password: caravan  # edu 계정의 password
+    ...
+    152 #initdbScripts: {}
+    153 initdbScripts:
+    154 my_init_script.sh: |
+    155 #!/bin/bash
+        # 아래는 초기 mariaDB 기동시에 진행하는 DB script는 넣을 수 있다.  
+    156 echo "init db script start"
+          mysql -P 3306 -uedu -pcaravan -e  "use edu; create sequence hibernate_sequence; create table EMPLOYEE (id int primary key,empName varchar(255),empDeptName varchar(255),empTelNo varchar(20),empMail  varchar(25));insert into EMPLOYEE  values(1,'1','1','1','1');SELECT NEXTVAL(hibernate_sequence)";    
+    ...
+    304   podSecurityContext:
+    305     enabled: true
+    306     fsGroup: 1000690000 #1001 # 본인 Namespace 의 openshift.io/sa.scc.uid-range
+    ...
+    313   containerSecurityContext:
+    314     enabled: true
+    315     runAsUser: 1000690000 #1001 # 본인 Namespace 의 openshift.io/sa.scc.uid-range
+    316     runAsNonRoot: true
+    ...
+    427   persistence:
+    428     ## @param primary.persistence.enabled Enable persistence on MariaDB primary replicas using a `PersistentVolumeClaim`. I     f false, use emptyDir
+    429     ##
+    430     enabled: true
+    431     ## @param primary.persistence.existingClaim Name of an existing `PersistentVolumeClaim` for MariaDB primary replicas
+    432     ## NOTE: When it's set the rest of persistence parameters are ignored
+    433     ##
+    434     existingClaim: ""  # 불필요 
+    435     ## @param primary.persistence.subPath Subdirectory of the volume to mount at
+    436     ##
+    437     subPath: "my-mariadb" # subPath
+    438     ## @param primary.persistence.storageClass MariaDB primary persistent volume storage Class
+    439     ## If defined, storageClassName: <storageClass>
+    440     ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    441     ## If undefined (the default) or set to null, no storageClassName spec is
+    442     ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    443     ##   GKE, AWS & OpenStack)
+    444     ##
+    445     storageClass: ""
+    446     ## @param primary.persistence.annotations MariaDB primary persistent volume claim annotations
+    447     ##
+    448     annotations: {}
+    449     ## @param primary.persistence.accessModes MariaDB primary persistent volume access Modes
+    450     ##
+    451     accessModes:
+    452       - ReadWriteOnce
+    453     ## @param primary.persistence.size MariaDB primary persistent volume size
+    454     ##
+    455     size: 4Gi # 사이즈
+  ...
+   549 secondary:
+    550   ## @param secondary.name Name of the secondary database (eg secondary, slave, ...)
+    551   ##
+    552   name: secondary
+    553   ## @param secondary.replicaCount Number of MariaDB secondary replicas
+    554   ##
+    555   replicaCount: 0  # primary 사용으로 여기서는 0 으로 설정
+  ```  
+
+  <br/>
+
+<br/>
+
+- helm-db/templates/primary/svc.yaml  
+
+  ```bash
+    3  metadata:
+    4 #  name: {{ include "mariadb.primary.fullname" . }}
+    5 name: helm-db-mariadb  # DB 서비스 이름 명시
+  ```
+
+
+<br/>
+
+이제 App-of-Apps 패턴을 배포 합니다.    
+
+```bash
+root@newedu:~/edu14-2# kubectl apply -f application.yaml
+```  
+
+<br/>
+
+POD 를 조회해본다.  
+
+```bash
+root@newedu:~/edu14-2# kubectl get po -n edu31
+NAME                                READY   STATUS    RESTARTS   AGE
+backend-6f99f7d8d9-v99bj            1/1     Running   0          12d
+edu31-helm-db-mariadb-0             1/1     Running   0          12d
+frontend-58ddf9dddc-z6lsq           1/1     Running   0          12d
+```  
+
+<br/>
+
+ArgoCD에 가서 4개의 Application 이 생성 된걸 확인 할 수 있다.    
+
+<img src="./assets/app_of_apps1.png" style="width: 80%; height: auto;"/>
+
+<br/>
+
+Main Application 인 edu31-apps를 클릭한다.    
+
+세부적으로 보면 3개의 Application과 연결 되어 있는 것을 볼 수 있다.
+
+<img src="./assets/app_of_apps2.png" style="width: 80%; height: auto;"/>
+
+<br/>
+
+backend 구성을 보실려면 edu31-backend를 클릭해서 확인한다.   
+
+
+<img src="./assets/app_of_apps3.png" style="width: 80%; height: auto;"/>
+
+<br/>
+
+DB구성을 확인하려면 NFS 에 들어가서 아래 폴더에 가면 자동으로 폴더 이름이 생성 된 것을 확인 할 수 있고  pv/pvc도 자동으로 생성된 것을 확인 할 수 있습니다.   
+
+```bash
+[root@edu database]# pwd
+/mnt/database
+[root@edu database]# ls
+[root@edu database]# ls
+edu31-data-edu31-helm-db-mariadb-0-pvc-b98cc9b5-90f2-4ed9-8029-34727a9e4c81  
+```
+<br/>
+
+생성된 폴더로 들어가면 values.yaml 에 설정한 subPath 인 my-mariadb 가 있는 것을 확인 할 수 있다.  
+
+<br/>
+
+```bash
+[root@edu edu31-data-edu31-helm-db-mariadb-0-pvc-b98cc9b5-90f2-4ed9-8029-34727a9e4c81]# ls
+my-mariadb
+```
+
+<br/>
+
+pv/pvc 도 자동으로 생성된 것을 확인합니다.
+
+<br/>
+
+```bash
+root@newedu:~/edu14-2# kubectl get pv
+pvc-b98cc9b5-90f2-4ed9-8029-34727a9e4c81   4Gi        RWO            Delete           Bound         edu31/data-edu31-helm-db-mariadb-0                        nfs-client              133d
+root@newedu:~/edu14-2# kubectl get pvc -n edu31
+NAME                           STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+data-edu31-helm-db-mariadb-0   Bound    pvc-b98cc9b5-90f2-4ed9-8029-34727a9e4c81   4Gi        RWO            nfs-client     133d
+```  
+
+<br/>
+
+
+웹브라우저에서 본인의 route 로 접속하여 로그인 해본다.  
+
+- https://frontend-edu31.apps.211-34-231-82.nip.io/
