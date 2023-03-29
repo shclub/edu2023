@@ -1346,6 +1346,23 @@ TODO
 
 pod를 확인한다.
 
+pod가 기동 되지 않으면 `kubectl get events` 명령어로 조회를 한다.   
+
+
+`privileged` 관련 오류가 발생하면 아래와 같이 권한을 부여하고  
+
+`helm delete sonarqube` 한 후 다시 설치한다.  
+
+<br/>
+
+> 중요 : 재설치를 하는 경우 NFS 폴더의  데이터를 다 삭제하고 설치해야 함.
+
+<br/>
+
+```bash
+root@newedu:~/sonar# oc adm policy add-scc-to-user privileged -z sonarqube
+```  
+
 ```bash
 root@newedu:~/sonar# kubectl get po
 NAME                                        READY   STATUS    RESTARTS   AGE
