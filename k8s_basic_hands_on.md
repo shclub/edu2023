@@ -656,11 +656,18 @@ pod "pod-test-app" deleted
 
 <br/>
 
+
 kubernetes Pod 들은 언젠가는 죽게됩니다. 실제 Pod 들은 생명주기를 갖습니다.  
 
 워커 노드가 죽으면, 노드 상에서 동작하는 Pod 들 또한 종료됩니다.  
 
 Kubernetes 에서 service 는 Pod 들에 접근 할 수 있는 정책을 정의하는 추상적 개념입니다.  
+
+<br/>
+
+> 참고 : https://youtu.be/RQbc_Yjb9ls?si=qqQY5iYv3pJAg4XH  
+
+<br/>
 
 - ClusterIP (기본값)  
     - 클러스터 내에서 내부 IP 에 대해 서비스를 노출합니다. 이 방식은 클러스터 내에서만 서비스가 접근될 수 있도록 합니다.
@@ -705,16 +712,21 @@ APP를 노출합니다. 포트는 컨테이너 포트이고 flask 소스에  500
 ```bash
 root@jakelee:~# kubectl expose deployment flask-edu4-app --port 5000
 service/flask-edu4-app exposed
-```
+```  
+
+<br/>
+
 또는   
 
-Create 옵션으로 생성 방법 
+Create 옵션으로 생성 방법   
+
 ```bash
 root@jakelee:~# kubectl create service clusterip flask-edu4-app --tcp=5000
 service/flask-edu4-app exposed
 ```
 
-서비스를 조회해 보면  80번 포트로 접속할 수 있는 서비스가 생성되었습니다.
+서비스를 조회해 보면  80번 포트로 접속할 수 있는 서비스가 생성되었습니다.  
+
 ```bash
 root@jakelee:~# kubectl get svc
 NAME             TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)   AGE
@@ -724,7 +736,13 @@ flask-edu4-app   ClusterIP   10.43.119.5   <none>        5000/TCP    3s
 
 <br/>
 
-***
+서비스를 호출해 봅니다.  
+
+```bash
+root@jakelee:~# kubectl run curl-pod --image nginx --rm --restart Never -it -- curl flask-edu4-app:5000
+ Container EDU | POD Working : flask-edu4-app-7876ccd5db-lhngh | v=1
+pod "curl-pod" deleted
+```  
 
 <br/>
 
